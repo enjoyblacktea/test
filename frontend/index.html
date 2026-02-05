@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注音輸入法練習</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/keyboard.css">
+    <link rel="stylesheet" href="styles/practice.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>注音輸入法練習</h1>
+            <p class="subtitle">看中文字，用注音打出來</p>
+        </header>
+
+        <main>
+            <!-- Practice Display Area -->
+            <div id="practice-area">
+                <div class="practice-label">請輸入這個字的注音：</div>
+                <div id="practice-word" class="practice-word">載入中...</div>
+                <div id="target-zhuyin" class="target-zhuyin"></div>
+            </div>
+
+            <!-- Virtual Keyboard -->
+            <div id="keyboard"></div>
+        </main>
+
+        <footer>
+            <p class="hint">提示：按下鍵盤上的按鍵來輸入注音符號</p>
+            <p class="browser-requirement">需要 Chrome 61+、Firefox 60+ 或 Safari 11+ 瀏覽器</p>
+        </footer>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
