@@ -20,8 +20,18 @@
 （需要支援 ES6 Modules 的現代瀏覽器）
 
 ### 後端要求
-- Python 3.8+
-- uv（Python 套件管理工具）
+- Python 3.10+
+- uv（現代 Python 套件管理工具）
+
+#### 安裝 uv
+
+```bash
+# Linux/macOS
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Windows
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
 
 ## 快速開始
 
@@ -29,20 +39,16 @@
 
 ```bash
 cd backend
-uv venv
-source .venv/bin/activate  # Linux/Mac
-# 或
-.venv\Scripts\activate     # Windows
-
-uv pip install -r requirements.txt
+uv sync
 ```
+
+這會自動建立虛擬環境（`.venv`）並安裝所有依賴，包括開發工具。
 
 ### 2. 啟動後端伺服器
 
 ```bash
 cd backend
-source .venv/bin/activate
-python app.py
+uv run python app.py
 ```
 
 伺服器會在 http://localhost:5000 啟動。
@@ -91,7 +97,8 @@ zhuyin-practice/
 │
 ├── backend/                     # 後端檔案
 │   ├── app.py                  # Flask 應用程式
-│   ├── requirements.txt        # Python 依賴
+│   ├── pyproject.toml         # 專案配置與依賴定義
+│   ├── uv.lock                # 依賴鎖定檔（確保可重現建置）
 │   └── data/                   # 資料檔案
 │       └── words.json         # 練習字詞資料
 │
@@ -149,9 +156,8 @@ zhuyin-practice/
 ### 後端測試
 
 ```bash
-cd tests/backend
-source ../../backend/.venv/bin/activate
-python -m pytest test_api.py -v
+cd backend
+uv run pytest ../tests/backend/ -v
 ```
 
 測試包含:
@@ -230,6 +236,7 @@ python -m pytest test_api.py -v
 - **Flask**: 輕量級框架，簡單易用
 - **flask-cors**: 處理跨域請求
 - **靜態 JSON**: 簡單可靠的資料儲存
+- **uv + pyproject.toml**: 現代 Python 套件管理，提供快速安裝與可重現建置（透過 `uv.lock`）
 
 ### 測試
 - **前端**: 獨立的 HTML 測試頁面
@@ -258,6 +265,28 @@ MIT License
 歡迎提交 Issue 和 Pull Request！
 
 ## 常見問題
+
+### Q: uv 是什麼？為什麼使用它？
+A: uv 是新一代的 Python 套件管理工具，提供：
+- **極快的速度**：比 pip 快 10-100 倍
+- **可重現建置**：透過 `uv.lock` 鎖定所有依賴版本
+- **自動管理虛擬環境**：無需手動建立和啟動 venv
+- **現代化標準**：完全支援 PEP 621（pyproject.toml）
+
+常用指令：
+- `uv sync` - 安裝所有依賴（根據 pyproject.toml 和 uv.lock）
+- `uv add <package>` - 新增依賴套件
+- `uv run <command>` - 在虛擬環境中執行指令
+
+### Q: 如果我想使用 pip 而不是 uv？
+A: `pyproject.toml` 是標準格式，pip 也支援：
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -e .
+```
+
+但使用 uv 可以獲得更快的速度和可重現的建置。
 
 ### Q: 為什麼使用 uv 而不是 pip？
 A: uv 是更快的 Python 套件管理工具，但如果你習慣 pip 也可以使用：
