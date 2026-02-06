@@ -68,11 +68,14 @@ function updateDisplay() {
 export function checkInput(key) {
   const expectedKey = state.keys[state.currentIndex];
   
+  console.log(`[checkInput] key='${key}', expected='${expectedKey}', currentIndex=${state.currentIndex}, totalKeys=${state.keys.length}`);
+  
   // Handle first tone (space) - can be space or auto-advance
   if (expectedKey === ' ' && key === ' ') {
     // User explicitly pressed space for first tone
     state.currentIndex++;
     const complete = state.currentIndex >= state.keys.length;
+    console.log(`[checkInput] Space pressed, complete=${complete}`);
     return { correct: true, complete, expected: ' ' };
   }
   
@@ -80,6 +83,7 @@ export function checkInput(key) {
   if (expectedKey === ' ' && key !== ' ') {
     // Treat previous word as complete, but don't process current key yet
     // The caller should handle loading next word
+    console.log(`[checkInput] Auto-advance on space, nextKey='${key}'`);
     return { correct: true, complete: true, expected: ' ', autoAdvance: true, nextKey: key };
   }
   
@@ -87,9 +91,11 @@ export function checkInput(key) {
   if (key === expectedKey) {
     state.currentIndex++;
     const complete = state.currentIndex >= state.keys.length;
+    console.log(`[checkInput] Correct! complete=${complete}, newIndex=${state.currentIndex}`);
     return { correct: true, complete, expected: expectedKey };
   }
   
+  console.log(`[checkInput] Incorrect key`);
   return { correct: false, complete: false, expected: expectedKey };
 }
 
