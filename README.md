@@ -96,7 +96,13 @@ zhuyin-practice/
 │           └── input-handler.js # 輸入處理
 │
 ├── backend/                     # 後端檔案
-│   ├── app.py                  # Flask 應用程式
+│   ├── app.py                  # Flask 應用程式入口點
+│   ├── config.py               # 配置管理
+│   ├── routes/                 # API 路由層
+│   │   ├── words.py           # 字詞 API 端點
+│   │   └── health.py          # 健康檢查端點
+│   ├── services/               # 業務邏輯層
+│   │   └── word_service.py    # 字詞資料管理
 │   ├── pyproject.toml         # 專案配置與依賴定義
 │   ├── uv.lock                # 依賴鎖定檔（確保可重現建置）
 │   └── data/                   # 資料檔案
@@ -109,6 +115,82 @@ zhuyin-practice/
     │   └── test_api.py        # API 測試
     └── INTEGRATION_TEST_CHECKLIST.md  # 整合測試清單
 ```
+
+## 後端架構
+
+後端採用簡潔的模組化架構，將程式碼組織為三個清晰的層次：
+
+```
+┌─────────────────────────────────┐
+│      app.py (入口點)            │
+│   建立 Flask app 並註冊路由     │
+└────────────┬────────────────────┘
+             │
+    ┌────────┴────────┐
+    │                 │
+┌───▼──────┐    ┌────▼────────┐
+│  routes/ │    │  services/  │
+│ (HTTP層) │───>│ (業務邏輯層)│
+└──────────┘    └─────┬───────┘
+                      │
+                ┌─────▼──────┐
+                │  config.py  │
+                │  (配置層)   │
+                └─────────────┘
+```
+
+### 架構原則
+
+1. **單向依賴流**：routes → services → config（無循環依賴）
+2. **關注點分離**：HTTP 處理、業務邏輯、配置管理各司其職
+3. **易於測試**：每一層都可以獨立測試和 mock
+
+### 模組職責
+
+#### `app.py` - 應用程式入口點
+- 建立 Flask 應用程式
+- 配置 CORS
+- 註冊所有 Blueprints
+- 簡潔明瞭（~15 行）
+
+#### `config.py` - 配置管理
+- 集中管理所有配置值（檔案路徑、端口、環境變數）
+- 提供 `Config` 類別供其他模組引用
+- 避免硬編碼，支援環境變數覆寫
+
+#### `routes/` - 路由層
+- 處理 HTTP 請求和回應
+- 將請求委派給 services 處理
+- 將回應格式化為 JSON
+- **不包含業務邏輯**
+
+#### `services/` - 業務邏輯層
+- 包含所有業務邏輯（資料載入、處理）
+- 獨立於 HTTP 和 Flask
+- 易於單元測試
+- 模組啟動時自動初始化資料
+
+### 新增功能範例
+
+假設要添加一個新的 API 端點 `GET /api/words/list`：
+
+1. **在 services 添加業務邏輯**：
+   ```python
+   # services/word_service.py
+   def get_all_words():
+       return _words_data
+   ```
+
+2. **在 routes 添加端點**：
+   ```python
+   # routes/words.py
+   @words_bp.route('/list', methods=['GET'])
+   def list_words():
+       words = word_service.get_all_words()
+       return jsonify(words)
+   ```
+
+3. **完成！** 不需要修改 `app.py`，Blueprint 會自動處理路由
 
 ## API 文件
 
@@ -234,9 +316,23 @@ uv run pytest ../tests/backend/ -v
 
 ### 後端
 - **Flask**: 輕量級框架，簡單易用
+- **Flask Blueprints**: 模組化路由組織
 - **flask-cors**: 處理跨域請求
 - **靜態 JSON**: 簡單可靠的資料儲存
 - **uv + pyproject.toml**: 現代 Python 套件管理，提供快速安裝與可重現建置（透過 `uv.lock`）
+- **模組化架構**: routes → services → config 三層分離
+
+### 環境變數配置
+
+後端支援以下環境變數：
+
+- `PORT`: 伺服器端口（預設：5000）
+- `FLASK_ENV`: 環境模式（`development` 啟用除錯模式）
+
+範例：
+```bash
+PORT=8000 FLASK_ENV=development python app.py
+```
 
 ### 測試
 - **前端**: 獨立的 HTML 測試頁面
