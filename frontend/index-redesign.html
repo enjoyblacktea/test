@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注音輸入練習 - 筆墨童趣版</title>
+
+    <!-- Preconnect to Google Fonts for faster loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Load Noto Serif TC and Noto Sans TC fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- CSS Stylesheets -->
+    <link rel="stylesheet" href="styles/redesign.css">
+    <link rel="stylesheet" href="styles/animations.css">
+    <link rel="stylesheet" href="styles/particles.css">
+    <link rel="stylesheet" href="styles/keyboard-redesign.css">
+    <link rel="stylesheet" href="styles/stats-panel.css">
+</head>
+<body>
+    <!-- Canvas for particle effects -->
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- Decorative ink background -->
+    <div class="ink-bg">
+        <div class="stroke stroke-1"></div>
+        <div class="stroke stroke-2"></div>
+        <div class="stroke stroke-3"></div>
+    </div>
+
+    <div class="container">
+        <!-- Header with decorative elements -->
+        <header class="header">
+            <div class="header-decoration header-decoration--top"></div>
+            <h1 class="title">
+                <span class="title-char" style="--char-index: 0">注</span>
+                <span class="title-char" style="--char-index: 1">音</span>
+                <span class="title-char" style="--char-index: 2">輸</span>
+                <span class="title-char" style="--char-index: 3">入</span>
+                <span class="title-char" style="--char-index: 4">練</span>
+                <span class="title-char" style="--char-index: 5">習</span>
+            </h1>
+            <div class="header-decoration header-decoration--bottom"></div>
+        </header>
+
+        <!-- Statistics Panel -->
+        <section class="stats-panel">
+            <div class="stats-panel__item">
+                <span class="stats-panel__icon">📖</span>
+                <div class="stats-panel__value" id="stat-words">0</div>
+                <div class="stats-panel__label">已練習</div>
+            </div>
+            <div class="stats-panel__item">
+                <span class="stats-panel__icon">✨</span>
+                <div class="stats-panel__value" id="stat-accuracy">100%</div>
+                <div class="stats-panel__label">準確率</div>
+            </div>
+            <div class="stats-panel__item">
+                <span class="stats-panel__icon">🔥</span>
+                <div class="stats-panel__value" id="stat-streak">0</div>
+                <div class="stats-panel__label">連續正確</div>
+            </div>
+            <button class="stats-panel__reset" id="reset-stats" title="重置統計">重置</button>
+        </section>
+
+        <!-- Practice Area -->
+        <section class="practice-area">
+            <div class="ink-splash ink-splash--left"></div>
+            <div class="practice-card">
+                <div id="practice-character" class="practice-character">載入中...</div>
+                <div id="zhuyin-display" class="zhuyin-display"></div>
+
+                <!-- Progress Bar -->
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill">
+                        <div class="progress-ink"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="ink-splash ink-splash--right"></div>
+        </section>
+
+        <!-- Keyboard Area -->
+        <section class="keyboard-area">
+            <p class="keyboard-hint">
+                使用 QWERTY 鍵盤輸入注音符號。正確輸入會有墨滴飛濺，完成整字會有煙火慶祝！
+            </p>
+            <div id="keyboard" class="keyboard"></div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p class="footer-text">用心練習，字字生花</p>
+        </footer>
+    </div>
+
+    <!-- JavaScript Modules -->
+    <script type="module" src="js/main-redesign.js"></script>
+</body>
+</html>

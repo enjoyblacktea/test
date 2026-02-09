@@ -1,0 +1,332 @@
+/**
+ * Redesigned Zhuyin Practice App - Main Stylesheet
+ * Theme: Calligraphy and Ink (筆墨童趣美學)
+ */
+
+/* ========================================
+   CSS Custom Properties (Theme System)
+   ======================================== */
+
+:root {
+    /* Color Palette - Calligraphy Theme */
+    --color-ink-dark: #1a1a1a;         /* 墨色 - Main text */
+    --color-ink-medium: #4a5568;       /* 中墨 - Secondary text */
+    --color-rust: #d97706;             /* 赭石 - Warm accent */
+    --color-vermillion: #dc2626;       /* 朱砂 - Vibrant accent */
+    --color-jade: #059669;             /* 墨綠 - Success/highlight */
+    --color-cream: #fffbeb;            /* 奶油白 - Background */
+
+    /* Typography System */
+    --font-serif: 'Noto Serif TC', 'Microsoft JhengHei', '微軟正黑體', serif;
+    --font-sans: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+
+    /* Spacing System (8px baseline) */
+    --space-1: 0.5rem;   /* 8px */
+    --space-2: 1rem;     /* 16px */
+    --space-3: 1.5rem;   /* 24px */
+    --space-4: 2rem;     /* 32px */
+    --space-5: 3rem;     /* 48px */
+
+    /* Animation Duration */
+    --duration-fast: 0.2s;
+    --duration-normal: 0.4s;
+    --duration-slow: 0.8s;
+
+    /* Shadow Depths (warm-toned) */
+    --shadow-sm: 0 2px 4px rgba(217, 119, 6, 0.1);
+    --shadow-md: 0 4px 8px rgba(217, 119, 6, 0.15);
+    --shadow-lg: 0 8px 16px rgba(217, 119, 6, 0.2);
+    --shadow-xl: 0 12px 24px rgba(217, 119, 6, 0.25);
+}
+
+/* ========================================
+   Global Styles
+   ======================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-sans);
+    background: linear-gradient(
+        135deg,
+        var(--color-cream) 0%,
+        #fff5dc 100%
+    );
+    color: var(--color-ink-dark);
+    min-height: 100vh;
+    line-height: 1.6;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* ========================================
+   Decorative Ink Background
+   ======================================== */
+
+.ink-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.08;
+}
+
+.stroke {
+    position: absolute;
+    background: linear-gradient(
+        45deg,
+        var(--color-rust),
+        var(--color-vermillion),
+        var(--color-jade)
+    );
+    opacity: 0.15;
+    border-radius: 50%;
+    filter: blur(60px);
+}
+
+.stroke-1 {
+    top: 10%;
+    left: -5%;
+    width: 400px;
+    height: 400px;
+}
+
+.stroke-2 {
+    top: 50%;
+    right: -10%;
+    width: 500px;
+    height: 500px;
+}
+
+.stroke-3 {
+    bottom: 5%;
+    left: 30%;
+    width: 300px;
+    height: 300px;
+}
+
+/* ========================================
+   Main Container
+   ======================================== */
+
+.container {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-4) var(--space-2);
+}
+
+/* ========================================
+   Header
+   ======================================== */
+
+.header {
+    text-align: center;
+    margin-bottom: var(--space-5);
+    position: relative;
+}
+
+.header-decoration {
+    width: 150px;
+    height: 4px;
+    margin: 0 auto;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--color-rust),
+        var(--color-vermillion),
+        transparent
+    );
+    border-radius: 2px;
+}
+
+.header-decoration--top {
+    margin-bottom: var(--space-3);
+}
+
+.header-decoration--bottom {
+    margin-top: var(--space-3);
+}
+
+.title {
+    font-family: var(--font-serif);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    color: var(--color-ink-dark);
+    letter-spacing: 0.1em;
+    display: flex;
+    justify-content: center;
+    gap: 0.1em;
+}
+
+.title-char {
+    display: inline-block;
+    /* Animation will be applied via animations.css */
+}
+
+/* ========================================
+   Practice Area
+   ======================================== */
+
+.practice-area {
+    position: relative;
+    margin-bottom: var(--space-4);
+}
+
+.ink-splash {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(
+        circle,
+        rgba(26, 26, 26, 0.05) 0%,
+        transparent 70%
+    );
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.ink-splash--left {
+    top: -20px;
+    left: -50px;
+}
+
+.ink-splash--right {
+    bottom: -20px;
+    right: -50px;
+}
+
+.practice-card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    padding: var(--space-5) var(--space-4);
+    box-shadow: var(--shadow-lg);
+    border: 2px solid rgba(217, 119, 6, 0.1);
+    text-align: center;
+}
+
+.practice-character {
+    font-family: var(--font-serif);
+    font-size: clamp(4rem, 10vw, 8rem);
+    font-weight: 700;
+    color: var(--color-ink-dark);
+    margin-bottom: var(--space-3);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.zhuyin-display {
+    font-size: 1.5rem;
+    color: var(--color-ink-medium);
+    letter-spacing: 0.5em;
+    margin-bottom: var(--space-3);
+    min-height: 2rem;
+}
+
+/* Progress Bar */
+.progress-bar {
+    width: 100%;
+    height: 12px;
+    background: rgba(74, 85, 104, 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(
+        90deg,
+        var(--color-jade),
+        var(--color-rust)
+    );
+    border-radius: 6px;
+    transition: width var(--duration-normal) ease-out;
+    position: relative;
+}
+
+.progress-ink {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: ink-shimmer 2s ease-in-out infinite;
+}
+
+@keyframes ink-shimmer {
+    0%, 100% {
+        transform: translateX(-100%);
+    }
+    50% {
+        transform: translateX(100%);
+    }
+}
+
+/* ========================================
+   Keyboard Area
+   ======================================== */
+
+.keyboard-area {
+    margin-bottom: var(--space-4);
+}
+
+.keyboard-hint {
+    text-align: center;
+    color: var(--color-ink-medium);
+    font-size: 0.95rem;
+    margin-bottom: var(--space-3);
+    line-height: 1.5;
+}
+
+/* Keyboard styles will be in keyboard-redesign.css */
+
+/* ========================================
+   Footer
+   ======================================== */
+
+.footer {
+    text-align: center;
+    padding: var(--space-4) 0;
+    margin-top: var(--space-5);
+}
+
+.footer-text {
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    color: var(--color-rust);
+    font-style: italic;
+    letter-spacing: 0.1em;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+@media (max-width: 768px) {
+    .container {
+        padding: var(--space-2) var(--space-1);
+    }
+
+    .practice-card {
+        padding: var(--space-4) var(--space-2);
+    }
+
+    .ink-splash {
+        display: none;
+    }
+}

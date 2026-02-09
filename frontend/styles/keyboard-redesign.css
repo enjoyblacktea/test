@@ -1,0 +1,210 @@
+/**
+ * Keyboard Redesign Styles - Seal Stamp Theme (印章風格)
+ * Updates keyboard keys to resemble traditional Chinese seal stamps
+ */
+
+.keyboard {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-3);
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+}
+
+.keyboard-row {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-1);
+}
+
+/* ========================================
+   Seal Stamp Key Styling
+   ======================================== */
+
+.key {
+    /* Base dimensions */
+    min-width: 50px;
+    height: 50px;
+    padding: var(--space-1);
+
+    /* Seal stamp appearance */
+    background: linear-gradient(
+        145deg,
+        rgba(255, 251, 235, 0.9),
+        rgba(255, 245, 220, 0.9)
+    );
+    border: 2px solid rgba(217, 119, 6, 0.3);
+    border-radius: 8px;
+
+    /* Warm-toned depth effect */
+    box-shadow:
+        0 2px 4px rgba(217, 119, 6, 0.15),
+        0 4px 8px rgba(217, 119, 6, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+
+    /* Typography */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+
+    font-family: var(--font-sans);
+    cursor: pointer;
+    user-select: none;
+
+    /* Smooth transitions */
+    transition: all var(--duration-fast) ease-out;
+    will-change: transform, box-shadow;
+}
+
+/* Hover state */
+.key:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow:
+        0 4px 8px rgba(217, 119, 6, 0.2),
+        0 6px 12px rgba(217, 119, 6, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    border-color: rgba(217, 119, 6, 0.5);
+}
+
+/* Active/Press state */
+.key:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow:
+        0 1px 2px rgba(217, 119, 6, 0.2),
+        inset 0 2px 4px rgba(217, 119, 6, 0.1);
+}
+
+/* ========================================
+   Highlighted State (Ink Gradient)
+   ======================================== */
+
+.key.highlighted {
+    /* Remove solid green #4CAF50, use ink gradient */
+    background: linear-gradient(
+        145deg,
+        var(--color-jade),
+        var(--color-rust)
+    );
+    border-color: var(--color-jade);
+
+    /* Text color transitions to cream/white for contrast */
+    color: var(--color-cream);
+
+    /* Stamp press animation */
+    animation: stamp-press 0.3s ease-out;
+
+    /* Enhanced shadow depth */
+    box-shadow:
+        0 6px 12px rgba(5, 150, 105, 0.3),
+        0 8px 16px rgba(5, 150, 105, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+
+    transform: scale(1.05);
+}
+
+.key.highlighted .zhuyin,
+.key.highlighted .letter {
+    color: var(--color-cream);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* ========================================
+   Key Content Styling
+   ======================================== */
+
+.zhuyin {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-ink-dark);
+    line-height: 1;
+}
+
+.letter {
+    font-size: 0.7rem;
+    color: var(--color-ink-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ========================================
+   Spacebar Special Styling
+   ======================================== */
+
+.key.spacebar {
+    min-width: 300px;
+    flex-grow: 1;
+}
+
+.key.spacebar .zhuyin {
+    font-size: 1rem;
+}
+
+.key.spacebar .letter {
+    font-size: 0.8rem;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+@media (max-width: 768px) {
+    .keyboard {
+        padding: var(--space-2);
+    }
+
+    .key {
+        min-width: 40px;
+        height: 40px;
+        padding: 6px;
+        border-radius: 6px;
+    }
+
+    .zhuyin {
+        font-size: 1rem;
+    }
+
+    .letter {
+        font-size: 0.6rem;
+    }
+
+    .key.spacebar {
+        min-width: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .keyboard-row {
+        gap: 4px;
+    }
+
+    .key {
+        min-width: 32px;
+        height: 32px;
+        padding: 4px;
+    }
+
+    .zhuyin {
+        font-size: 0.85rem;
+    }
+
+    .letter {
+        font-size: 0.5rem;
+    }
+
+    .key.spacebar {
+        min-width: 150px;
+    }
+}
+
+/* ========================================
+   Focus State for Keyboard Navigation
+   ======================================== */
+
+.key:focus-visible {
+    outline: 2px solid var(--color-rust);
+    outline-offset: 2px;
+}
