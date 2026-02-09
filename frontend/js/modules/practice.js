@@ -49,9 +49,13 @@ export function loadWord(data) {
  * Update the DOM to display current word
  */
 function updateDisplay() {
-  const display = document.getElementById('practice-word');
+  // Support both original and redesigned HTML
+  const display = document.getElementById('practice-word') || document.getElementById('practice-character');
   if (display) {
     display.textContent = state.word;
+    // Reset any error styling
+    display.style.fontSize = '';
+    display.style.color = '';
   }
 
   const zhuyinDisplay = document.getElementById('target-zhuyin');

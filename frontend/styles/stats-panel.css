@@ -1,0 +1,131 @@
+/**
+ * Statistics Panel Styles
+ * BEM naming convention: .stats-panel, .stats-panel__element, .stats-panel--modifier
+ */
+
+.stats-panel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+    padding: var(--space-3);
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    border: 2px solid rgba(217, 119, 6, 0.1);
+    position: relative;
+}
+
+/* Individual stat item */
+.stats-panel__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-2);
+    min-width: 100px;
+    transition: transform var(--duration-fast) ease-out;
+}
+
+.stats-panel__item:hover {
+    transform: translateY(-2px);
+}
+
+/* Icon */
+.stats-panel__icon {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+/* Value (large number) */
+.stats-panel__value {
+    font-family: var(--font-sans);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-ink-dark);
+    line-height: 1;
+}
+
+/* Label (descriptive text) */
+.stats-panel__label {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: var(--color-ink-medium);
+    font-weight: 500;
+}
+
+/* Reset button */
+.stats-panel__reset {
+    position: absolute;
+    top: var(--space-2);
+    right: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    background: rgba(220, 38, 38, 0.1);
+    border: 1px solid var(--color-vermillion);
+    border-radius: 8px;
+    color: var(--color-vermillion);
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--duration-fast) ease-out;
+}
+
+.stats-panel__reset:hover {
+    background: var(--color-vermillion);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.stats-panel__reset:active {
+    transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .stats-panel {
+        flex-direction: column;
+        gap: var(--space-2);
+        padding: var(--space-2);
+    }
+
+    .stats-panel__item {
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+        min-width: auto;
+        padding: var(--space-1) var(--space-2);
+    }
+
+    .stats-panel__icon {
+        font-size: 1.5rem;
+    }
+
+    .stats-panel__value {
+        font-size: 1.5rem;
+    }
+
+    .stats-panel__label {
+        font-size: 0.8rem;
+    }
+
+    .stats-panel__reset {
+        position: static;
+        width: 100%;
+        margin-top: var(--space-1);
+    }
+}
+
+/* Animation for value changes */
+.stats-panel__value--updated {
+    animation: stat-pulse 0.3s ease-out;
+}
+
+@keyframes stat-pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}

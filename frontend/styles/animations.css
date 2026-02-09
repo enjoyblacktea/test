@@ -1,0 +1,143 @@
+/**
+ * Animation Styles for Redesigned Zhuyin Practice App
+ * All animations use GPU-accelerated properties (transform, opacity)
+ */
+
+/* ========================================
+   Keyframe Animations
+   ======================================== */
+
+/* Fade In Up Animation - Used for page load elements */
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Brush Stroke Animation - Used for calligraphy elements */
+@keyframes brush-stroke {
+    from {
+        stroke-dashoffset: 1000;
+        opacity: 0;
+    }
+    to {
+        stroke-dashoffset: 0;
+        opacity: 1;
+    }
+}
+
+/* Stamp Press Animation - Used for keyboard keys */
+@keyframes stamp-press {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Ink Spread Animation - Used for progress bar and effects */
+@keyframes ink-spread {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ========================================
+   Title Character Stagger Animation
+   ======================================== */
+
+.title-char {
+    animation: fade-in-up 0.6s ease-out backwards;
+    animation-delay: calc(var(--char-index) * 0.1s);
+    will-change: transform, opacity;
+}
+
+/* ========================================
+   Practice Character Animations
+   ======================================== */
+
+.practice-character {
+    animation: ink-spread 0.8s ease-out;
+    will-change: transform, opacity;
+}
+
+.practice-character--brush-writing {
+    animation: brush-stroke 1.2s ease-out;
+}
+
+/* ========================================
+   Interaction Transitions
+   ======================================== */
+
+/* Smooth transitions for all interactive elements */
+button,
+.keyboard-key,
+.stats-panel__item {
+    transition: all var(--duration-fast) ease-out;
+    will-change: transform;
+}
+
+button:hover,
+.keyboard-key:hover {
+    transform: translateY(-2px);
+}
+
+button:active,
+.keyboard-key:active {
+    transform: translateY(0);
+}
+
+/* Focus states for keyboard navigation */
+button:focus-visible,
+.keyboard-key:focus-visible {
+    outline: 2px solid var(--color-rust);
+    outline-offset: 2px;
+}
+
+/* ========================================
+   Reduced Motion Support
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .title-char {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* ========================================
+   GPU Acceleration Hints
+   ======================================== */
+
+.practice-character,
+.title-char,
+.keyboard-key,
+.stats-panel__value,
+.progress-fill {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
