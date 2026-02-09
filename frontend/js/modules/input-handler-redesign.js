@@ -11,6 +11,7 @@ let particleSystem = null;
 let statsTracker = null;
 let animationController = null;
 let progressFillElement = null;
+let zhuyinDisplayElement = null;
 
 /**
  * Initialize input handler with dependencies
@@ -24,6 +25,7 @@ export function init(deps = {}) {
     statsTracker = deps.statsTracker;
     animationController = deps.animationController;
     progressFillElement = document.getElementById('progress-fill');
+    zhuyinDisplayElement = document.getElementById('zhuyin-display');
 
     // Listen for keydown events on the document
     document.addEventListener('keydown', handleKeyDown);
@@ -71,6 +73,9 @@ async function handleKeyDown(event) {
             updateStatsDisplay();
         }
 
+        // Update zhuyin display
+        updateZhuyinDisplay();
+
         // Update progress bar
         updateProgressBar(result.progress);
 
@@ -94,6 +99,9 @@ async function handleKeyDown(event) {
                 statsTracker.incrementWordCount();
                 updateStatsDisplay();
             }
+
+            // Wait briefly to let user see the complete zhuyin before loading next word
+            await new Promise(resolve => setTimeout(resolve, 800));
 
             // If this was an auto-advance situation, handle the next key
             if (result.autoAdvance && result.nextKey) {
@@ -143,6 +151,21 @@ function resetProgressBar() {
 }
 
 /**
+ * Update zhuyin display to show progressively typed symbols
+ * Reads current practice state and displays all correctly typed zhuyin symbols
+ * @example
+ * // After typing "ㄓ" and "ㄨ", displays "ㄓㄨ"
+ * updateZhuyinDisplay();
+ */
+function updateZhuyinDisplay() {
+    if (!zhuyinDisplayElement) return;
+
+    const state = practice.getState();
+    const typedZhuyin = state.zhuyin.slice(0, state.currentIndex);
+    zhuyinDisplayElement.textContent = typedZhuyin.join('');
+}
+
+/**
  * Update statistics display in UI
  */
 function updateStatsDisplay() {
@@ -171,6 +194,11 @@ async function loadNextWord() {
     try {
         // Reset progress bar before loading new word
         resetProgressBar();
+
+        // Clear zhuyin display
+        if (zhuyinDisplayElement) {
+            zhuyinDisplayElement.textContent = '';
+        }
 
         const wordData = await practice.fetchNextWord();
         practice.loadWord(wordData);
