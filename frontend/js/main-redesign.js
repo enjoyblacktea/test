@@ -3,6 +3,9 @@
  * Initializes all modules and sets up the application
  */
 
+// Import authentication module
+import * as auth from './modules/auth.js';
+
 // Import new modules
 import { ParticleSystem } from './modules/particle-system.js';
 import { StatsTracker } from './modules/stats-tracker.js';
@@ -13,15 +16,40 @@ import * as keyboard from './modules/keyboard.js';
 import * as practice from './modules/practice.js';
 import * as inputHandler from './modules/input-handler-redesign.js';
 
+// DOM Elements
+let loginScreen = null;
+let practiceScreen = null;
+let loginForm = null;
+let usernameInput = null;
+let passwordInput = null;
+let loginError = null;
+let logoutButton = null;
+
 // Global instances
 let particleSystem = null;
 let statsTracker = null;
 let animationController = null;
 
 /**
- * Initialize the application
+ * Show login screen and hide practice screen
  */
-async function init() {
+function showLoginScreen() {
+    if (loginScreen) loginScreen.classList.remove('hidden');
+    if (practiceScreen) practiceScreen.classList.add('hidden');
+}
+
+/**
+ * Show practice screen and hide login screen
+ */
+function showPracticeScreen() {
+    if (loginScreen) loginScreen.classList.add('hidden');
+    if (practiceScreen) practiceScreen.classList.remove('hidden');
+}
+
+/**
+ * Initialize the practice application modules
+ */
+async function initPracticeApp() {
     console.log('Initializing redesigned Zhuyin practice app...');
 
     // Initialize particle system
@@ -129,6 +157,99 @@ function showError(message) {
         characterElement.style.fontSize = '1.5rem';
         characterElement.style.color = 'var(--color-vermillion)';
     }
+}
+
+/**
+ * Handle login form submission
+ */
+function handleLoginSubmit(event) {
+    event.preventDefault();
+
+    const username = usernameInput.value;
+    const password = passwordInput.value;
+
+    // Attempt login
+    if (auth.login(username, password)) {
+        console.log('Login successful');
+        // Show practice screen and initialize app
+        showPracticeScreen();
+        initPracticeApp();
+    } else {
+        console.log('Login failed');
+        // Show error message
+        showLoginError('帳號或密碼錯誤');
+        // Clear password field
+        passwordInput.value = '';
+    }
+}
+
+/**
+ * Show login error message with fade animation
+ * @param {string} message - Error message to display
+ */
+function showLoginError(message) {
+    if (!loginError) return;
+
+    loginError.textContent = message;
+    loginError.classList.remove('hide');
+    loginError.classList.add('show');
+
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+        loginError.classList.remove('show');
+        loginError.classList.add('hide');
+    }, 3000);
+}
+
+/**
+ * Handle logout button click
+ */
+function handleLogout() {
+    console.log('Logging out...');
+    // Clear authentication state
+    auth.logout();
+    // Show login screen
+    showLoginScreen();
+}
+
+/**
+ * Main initialization function
+ */
+function init() {
+    console.log('Initializing Zhuyin practice app with authentication...');
+
+    // Get DOM element references
+    loginScreen = document.getElementById('login-screen');
+    practiceScreen = document.getElementById('practice-screen');
+    loginForm = document.getElementById('login-form');
+    usernameInput = document.getElementById('username');
+    passwordInput = document.getElementById('password');
+    loginError = document.getElementById('login-error');
+    logoutButton = document.getElementById('logout-button');
+
+    // Check authentication status
+    if (auth.checkAuth()) {
+        console.log('User already authenticated');
+        // Show practice screen
+        showPracticeScreen();
+        // Initialize practice app
+        initPracticeApp();
+    } else {
+        console.log('User not authenticated, showing login screen');
+        // Show login screen
+        showLoginScreen();
+        // Attach login form handler
+        if (loginForm) {
+            loginForm.addEventListener('submit', handleLoginSubmit);
+        }
+    }
+
+    // Attach logout button handler
+    if (logoutButton) {
+        logoutButton.addEventListener('click', handleLogout);
+    }
+
+    console.log('App initialization complete');
 }
 
 // Initialize when DOM is ready

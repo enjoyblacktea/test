@@ -1,0 +1,250 @@
+/**
+ * Login Screen Styles
+ * 筆墨童趣主題 - 登入畫面樣式
+ */
+
+/* Hidden class for screen visibility control */
+.hidden {
+    display: none !important;
+}
+
+/* Login Screen Container */
+.login-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, var(--color-paper-light, #f5f1e8) 0%, var(--color-paper, #f0ebe0) 100%);
+    z-index: 1000;
+}
+
+/* Login Container */
+.login-container {
+    max-width: 400px;
+    width: 90%;
+    padding: 3rem 2.5rem;
+    background: var(--color-paper-light, #faf8f3);
+    border: 3px solid var(--color-ink-medium, #4a4a4a);
+    border-radius: 12px;
+    box-shadow:
+        0 4px 6px rgba(0, 0, 0, 0.1),
+        0 8px 20px rgba(0, 0, 0, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Login Title */
+.login-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--color-ink-dark, #2a2a2a);
+    text-align: center;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.1em;
+}
+
+.login-subtitle {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.9rem;
+    color: var(--color-ink-medium, #6a6a6a);
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+/* Login Form */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Form Group */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Form Label */
+.form-label {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-ink-dark, #3a3a3a);
+    margin-left: 0.25rem;
+}
+
+/* Form Input */
+.form-input {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    border: 3px solid var(--color-ink-light, #b0b0b0);
+    border-radius: 8px;
+    background: var(--color-paper, #f9f6f0);
+    color: var(--color-ink-dark, #2a2a2a);
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.form-input::placeholder {
+    color: var(--color-ink-light, #a0a0a0);
+    opacity: 0.6;
+}
+
+.form-input:focus {
+    border-color: var(--color-ink-medium, #5a5a5a);
+    background: var(--color-paper-light, #ffffff);
+    box-shadow:
+        0 0 0 3px rgba(74, 74, 74, 0.1),
+        0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+/* Login Error Message */
+.login-error {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.875rem;
+    color: #c92a2a;
+    background: #ffe0e0;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    border-left: 4px solid #c92a2a;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.login-error.show {
+    opacity: 1;
+    max-height: 100px;
+    margin-bottom: 0.5rem;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}
+
+.login-error.show {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.login-error.hide {
+    animation: fadeOut 0.3s ease-out;
+}
+
+/* Login Button */
+.login-button {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    padding: 0.875rem 1.5rem;
+    background: var(--color-ink-dark, #3a3a3a);
+    color: var(--color-paper-light, #ffffff);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow:
+        0 4px 0 rgba(0, 0, 0, 0.2),
+        0 6px 12px rgba(0, 0, 0, 0.15);
+    margin-top: 0.5rem;
+}
+
+.login-button:hover {
+    background: var(--color-ink-medium, #2a2a2a);
+    transform: translateY(-2px);
+    box-shadow:
+        0 6px 0 rgba(0, 0, 0, 0.2),
+        0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.login-button:active {
+    transform: translateY(0);
+    box-shadow:
+        0 2px 0 rgba(0, 0, 0, 0.2),
+        0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Logout Button */
+.logout-button {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.5rem 1.25rem;
+    background: transparent;
+    color: var(--color-ink-dark, #3a3a3a);
+    border: 2px solid var(--color-ink-medium, #5a5a5a);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+}
+
+.logout-button:hover {
+    background: var(--color-ink-dark, #3a3a3a);
+    color: var(--color-paper-light, #ffffff);
+    border-color: var(--color-ink-dark, #3a3a3a);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.logout-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .login-container {
+        padding: 2rem 1.5rem;
+    }
+
+    .login-title {
+        font-size: 1.75rem;
+    }
+
+    .logout-button {
+        top: 1rem;
+        right: 1rem;
+        padding: 0.4rem 1rem;
+        font-size: 0.85rem;
+    }
+}
