@@ -8,7 +8,10 @@ const state = {
   word: '',         // Current Chinese character
   zhuyin: [],       // Array of zhuyin symbols for current word
   keys: [],         // Array of expected keyboard keys
-  currentIndex: 0   // Current position in the input sequence
+  currentIndex: 0,  // Current position in the input sequence
+  startTime: null,  // Practice start time (Date object)
+  endTime: null,    // Practice end time (Date object)
+  hasError: false   // Whether any incorrect key was pressed
 };
 
 /**
@@ -39,10 +42,13 @@ export function loadWord(data) {
   state.keys = data.keys;
   state.currentIndex = 0;
 
+  // Reset timing and correctness tracking
+  state.startTime = new Date();
+  state.endTime = null;
+  state.hasError = false;
+
   // Update display
   updateDisplay();
-
-  console.log('Loaded word:', state.word, 'zhuyin:', state.zhuyin, 'keys:', state.keys);
 }
 
 /**
@@ -71,23 +77,28 @@ function updateDisplay() {
  */
 export function checkInput(key) {
   const expectedKey = state.keys[state.currentIndex];
-  
-  console.log(`[checkInput] key='${key}', expected='${expectedKey}', currentIndex=${state.currentIndex}, totalKeys=${state.keys.length}`);
-  
+
   // Handle first tone (space) - can be space or auto-advance
   if (expectedKey === ' ' && key === ' ') {
     // User explicitly pressed space for first tone
     state.currentIndex++;
     const complete = state.currentIndex >= state.keys.length;
-    console.log(`[checkInput] Space pressed, complete=${complete}`);
+
+    // Set end time when word is complete
+    if (complete) {
+      state.endTime = new Date();
+    }
+
     return { correct: true, complete, expected: ' ' };
   }
-  
+
   // Check if this is trying to start a new word (first tone auto-advance)
   if (expectedKey === ' ' && key !== ' ') {
     // Treat previous word as complete, but don't process current key yet
     // The caller should handle loading next word
-    console.log(`[checkInput] Auto-advance on space, nextKey='${key}'`);
+    // Set end time for completed word
+    state.endTime = new Date();
+
     return { correct: true, complete: true, expected: ' ', autoAdvance: true, nextKey: key };
   }
   
@@ -95,20 +106,30 @@ export function checkInput(key) {
   if (key === expectedKey) {
     state.currentIndex++;
     const complete = state.currentIndex >= state.keys.length;
-    console.log(`[checkInput] Correct! complete=${complete}, newIndex=${state.currentIndex}`);
+
+    // Set end time when word is complete
+    if (complete) {
+      state.endTime = new Date();
+    }
+
     return { correct: true, complete, expected: expectedKey };
   }
-  
-  console.log(`[checkInput] Incorrect key`);
+
+  // Mark as having error
+  state.hasError = true;
+
   return { correct: false, complete: false, expected: expectedKey };
 }
 
 /**
  * Get current practice state (for debugging/display)
- * @returns {Object} Current state
+ * @returns {Object} Current state with isCorrect computed
  */
 export function getState() {
-  return { ...state };
+  return {
+    ...state,
+    isCorrect: !state.hasError  // Compute isCorrect based on hasError
+  };
 }
 
 /**
@@ -119,4 +140,7 @@ export function reset() {
   state.zhuyin = [];
   state.keys = [];
   state.currentIndex = 0;
+  state.startTime = null;
+  state.endTime = null;
+  state.hasError = false;
 }

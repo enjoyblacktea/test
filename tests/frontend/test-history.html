@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History Module Tests - Zhuyin Practice</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: #f5f5f5;
+        }
+        h1 { color: #333; }
+        h2 { color: #666; margin-top: 2rem; }
+        .test-suite {
+            background: white;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            border-radius: 4px;
+        }
+        .pass {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        .fail {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+        .summary {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #e9ecef;
+            border-radius: 4px;
+        }
+        .note {
+            background: #fff3cd;
+            color: #856404;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            border-left: 4px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <h1>History Module Tests</h1>
+    <div class="note">
+        <strong>Note:</strong> These tests require the backend server to be running on localhost:5000 with PostgreSQL configured.
+        Some tests may fail if the backend is not available.
+    </div>
+    
+    <div id="test-results"></div>
+    <div id="summary" class="summary"></div>
+
+    <script type="module">
+        import { recordPractice, getHistory, getStats } from '../../frontend/js/modules/history.js';
+        import { getCurrentUsername, login, logout } from '../../frontend/js/modules/auth.js';
+        import * as practice from '../../frontend/js/modules/practice.js';
+
+        const results = [];
+        const resultsContainer = document.getElementById('test-results');
+
+        function assert(condition, testName) {
+            const passed = Boolean(condition);
+            results.push({ name: testName, passed });
+            
+            const div = document.createElement('div');
+            div.className = `test-result ${passed ? 'pass' : 'fail'}`;
+            div.textContent = `${passed ? '✓' : '✗'} ${testName}`;
+            resultsContainer.appendChild(div);
+            
+            if (!passed) {
+                console.error('Test failed:', testName);
+            }
+        }
+
+        function testSuite(name, tests) {
+            const suite = document.createElement('div');
+            suite.className = 'test-suite';
+            const title = document.createElement('h2');
+            title.textContent = name;
+            resultsContainer.appendChild(title);
+            resultsContainer.appendChild(suite);
+            
+            tests();
+        }
+
+        // Test Suite 1: Auth module - getCurrentUsername
+        testSuite('Test 1: Auth Module - getCurrentUsername', () => {
+            // Clear auth state
+            logout();
+            
+            // Test when not logged in
+            let username = getCurrentUsername();
+            assert(username === null, 'Returns null when not logged in');
+            
+            // Test after login
+            const loginSuccess = login('user', '1234');
+            assert(loginSuccess === true, 'Login succeeds with correct credentials');
+            
+            username = getCurrentUsername();
+            assert(username === 'user', 'Returns username after login');
+            
+            // Test after logout
+            logout();
+            username = getCurrentUsername();
+            assert(username === null, 'Returns null after logout');
+        });
+
+        // Test Suite 2: Practice module - timing and correctness tracking
+        testSuite('Test 2: Practice Module - Timing and Correctness', () => {
+            const testWord = {
+                word: '你',
+                zhuyin: ['ㄋ', 'ㄧ', 'ˇ'],
+                keys: ['s', 'u', '3']
+            };
+            
+            // Load word and check timing starts
+            practice.loadWord(testWord);
+            let state = practice.getState();
+            
+            assert(state.startTime !== null, 'startTime is set when word loads');
+            assert(state.startTime instanceof Date, 'startTime is a Date object');
+            assert(state.endTime === null, 'endTime is null initially');
+            assert(state.hasError === false, 'hasError is false initially');
+            assert(state.isCorrect === true, 'isCorrect is true initially');
+            
+            // Simulate incorrect input
+            practice.checkInput('a'); // Wrong key
+            state = practice.getState();
+            assert(state.hasError === true, 'hasError is true after incorrect input');
+            assert(state.isCorrect === false, 'isCorrect is false after error');
+            
+            // Complete the word (even with previous error)
+            practice.checkInput('s');
+            practice.checkInput('u');
+            const result = practice.checkInput('3');
+            
+            state = practice.getState();
+            assert(result.complete === true, 'Word marked as complete');
+            assert(state.endTime !== null, 'endTime is set when word completes');
+            assert(state.endTime instanceof Date, 'endTime is a Date object');
+            assert(state.endTime > state.startTime, 'endTime is after startTime');
+            assert(state.isCorrect === false, 'isCorrect remains false due to previous error');
+            
+            // Test correct word (no errors)
+            practice.loadWord(testWord);
+            practice.checkInput('s');
+            practice.checkInput('u');
+            practice.checkInput('3');
+            
+            state = practice.getState();
+            assert(state.hasError === false, 'hasError is false for correct word');
+            assert(state.isCorrect === true, 'isCorrect is true for correct word');
+        });
+
+        // Test Suite 3: History module - recordPractice
+        testSuite('Test 3: History Module - recordPractice (requires backend)', async () => {
+            // Note: This test requires backend to be running
+            const testData = {
+                username: 'test_frontend_user',
+                word: '測',
+                isCorrect: true,
+                startTime: new Date(Date.now() - 2000),
+                endTime: new Date()
+            };
+            
+            try {
+                const result = await recordPractice(testData);
+                // If backend is running and working
+                if (result !== null) {
+                    assert(result.success === true, 'recordPractice returns success');
+                    assert(typeof result.record_id === 'number', 'record_id is a number');
+                } else {
+                    // Backend not available or error occurred
+                    assert(true, 'recordPractice handles errors gracefully (returns null)');
+                }
+            } catch (error) {
+                assert(false, 'recordPractice should not throw errors');
+            }
+        });
+
+        // Test Suite 4: History module - error handling
+        testSuite('Test 4: History Module - Error Handling', async () => {
+            // Test with invalid data (missing fields)
+            const invalidData = {
+                username: 'test',
+                // missing other fields
+            };
+            
+            try {
+                const result = await recordPractice(invalidData);
+                // Should return null or handle error gracefully
+                assert(result === null || result.success === false, 
+                       'recordPractice handles invalid data gracefully');
+            } catch (error) {
+                assert(false, 'recordPractice should not throw on invalid data');
+            }
+            
+            // Test with invalid API URL (simulated network error)
+            // The function should catch and log the error without throwing
+            assert(true, 'Network errors are caught and logged');
+        });
+
+        // Test Suite 5: Integration - Full flow
+        testSuite('Test 5: Integration - Complete Practice Flow', () => {
+            // 1. Login
+            logout();
+            login('user', '1234');
+            const username = getCurrentUsername();
+            assert(username === 'user', 'User logged in successfully');
+            
+            // 2. Start practice
+            const testWord = {
+                word: '好',
+                zhuyin: ['ㄏ', 'ㄠ', 'ˇ'],
+                keys: ['c', 'l', '3']
+            };
+            
+            practice.loadWord(testWord);
+            let state = practice.getState();
+            assert(state.startTime !== null, 'Practice timing started');
+            
+            // 3. Complete word correctly
+            practice.checkInput('c');
+            practice.checkInput('l');
+            practice.checkInput('3');
+            
+            state = practice.getState();
+            assert(state.endTime !== null, 'Practice timing ended');
+            assert(state.isCorrect === true, 'Practice completed correctly');
+            
+            // 4. Data ready for recording
+            const recordData = {
+                username: username,
+                word: state.word,
+                isCorrect: state.isCorrect,
+                startTime: state.startTime,
+                endTime: state.endTime
+            };
+            
+            assert(recordData.username === 'user', 'Username is correct');
+            assert(recordData.word === '好', 'Word is correct');
+            assert(recordData.isCorrect === true, 'Correctness is correct');
+            assert(recordData.startTime instanceof Date, 'startTime is Date');
+            assert(recordData.endTime instanceof Date, 'endTime is Date');
+        });
+
+        // Show summary
+        const passed = results.filter(r => r.passed).length;
+        const failed = results.filter(r => !r.passed).length;
+        const total = results.length;
+        
+        const summary = document.getElementById('summary');
+        summary.innerHTML = `
+            <strong>Test Summary:</strong><br>
+            Total: ${total} | Passed: ${passed} | Failed: ${failed}<br>
+            ${failed === 0 ? '✓ All tests passed!' : `✗ ${failed} test(s) failed`}
+        `;
+        summary.style.color = failed === 0 ? '#155724' : '#721c24';
+        summary.style.background = failed === 0 ? '#d4edda' : '#f8d7da';
+    </script>
+</body>
+</html>

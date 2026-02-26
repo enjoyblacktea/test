@@ -5,6 +5,7 @@
 ## 功能特色
 
 - ✅ **使用者認證** - 簡單的登入系統，需要帳號密碼才能使用練習功能
+- ✅ **練習歷史追蹤** - 自動記錄每次練習的字詞、正確性、用時，支援統計查詢
 - ✅ **看中文打注音** - 顯示中文字，使用者輸入對應的注音符號
 - ✅ **虛擬鍵盤** - 顯示完整的注音鍵盤配置供參考
 - ✅ **即時視覺回饋** - 按下按鍵時虛擬鍵盤會高亮顯示
@@ -23,6 +24,7 @@
 ### 後端要求
 - Python 3.10+
 - uv（現代 Python 套件管理工具）
+- PostgreSQL 12+（用於練習歷史記錄功能）
 
 #### 安裝 uv
 
@@ -36,7 +38,79 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 
 ## 快速開始
 
-### 1. 安裝後端依賴
+### 1. PostgreSQL 資料庫設置
+
+練習歷史記錄功能需要 PostgreSQL 資料庫。如果您不需要此功能，可以跳過此步驟。
+
+#### 1.1 安裝 PostgreSQL
+
+**Ubuntu/Debian:**
+```bash
+sudo apt update
+sudo apt install postgresql postgresql-contrib
+```
+
+**macOS:**
+```bash
+brew install postgresql@15
+brew services start postgresql@15
+```
+
+**Windows:**
+從 [PostgreSQL 官網](https://www.postgresql.org/download/windows/) 下載安裝程式。
+
+#### 1.2 建立資料庫
+
+```bash
+# 連線到 PostgreSQL
+sudo -u postgres psql
+
+# 在 psql 命令列中執行
+CREATE DATABASE zhuyin_practice;
+
+# 離開 psql
+\q
+```
+
+#### 1.3 執行資料庫 Migration
+
+```bash
+cd backend
+psql -U postgres -d zhuyin_practice -f migrations/init_db.sql
+```
+
+如果遇到權限問題，可能需要設置 PostgreSQL 密碼或使用 sudo。
+
+#### 1.4 配置環境變數
+
+在 `backend/` 目錄下建立 `.env` 檔案：
+
+```bash
+cd backend
+cat > .env << EOF
+# PostgreSQL 連線配置
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=zhuyin_practice
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+EOF
+```
+
+根據您的 PostgreSQL 設置調整 `POSTGRES_USER` 和 `POSTGRES_PASSWORD`。
+
+> **遠端資料庫**: 如果使用遠端 PostgreSQL，請修改 `POSTGRES_HOST` 為遠端 IP 位址。
+
+#### 1.5 驗證資料庫連線
+
+```bash
+cd backend
+psql -U postgres -d zhuyin_practice -c "\dt"
+```
+
+應該會看到 `users` 和 `practice_history` 兩個資料表。
+
+### 2. 安裝後端依賴
 
 ```bash
 cd backend
@@ -45,7 +119,7 @@ uv sync
 
 這會自動建立虛擬環境（`.venv`）並安裝所有依賴，包括開發工具。
 
-### 2. 啟動後端伺服器
+### 3. 啟動後端伺服器
 
 ```bash
 cd backend
@@ -54,7 +128,7 @@ uv run python app.py
 
 伺服器會在 http://localhost:5000 啟動。
 
-### 3. 開啟前端網頁
+### 4. 開啟前端網頁
 
 **方法 A: 使用 HTTP 伺服器（推薦）**
 
@@ -71,7 +145,7 @@ python3 -m http.server 8000
 
 > **注意**: 部分瀏覽器可能因為 CORS 政策限制，直接開啟檔案時無法正常呼叫 API。建議使用方法 A。
 
-### 4. 登入系統
+### 5. 登入系統
 
 首次開啟應用程式時，會顯示登入畫面。請使用以下憑證登入：
 
@@ -80,7 +154,7 @@ python3 -m http.server 8000
 
 > ⚠️ **注意**：這是教育用途的簡化實作，帳號密碼儲存在前端程式碼中，不適合生產環境使用。
 
-### 5. 開始練習
+### 6. 開始練習
 
 1. 查看螢幕上顯示的中文字
 2. 參考虛擬鍵盤，使用實體鍵盤輸入對應的注音符號
@@ -113,11 +187,17 @@ zhuyin-practice/
 ├── backend/                     # 後端檔案
 │   ├── app.py                  # Flask 應用程式入口點
 │   ├── config.py               # 配置管理
+│   ├── .env                    # 環境變數設定（PostgreSQL 連線資訊）
 │   ├── routes/                 # API 路由層
 │   │   ├── words.py           # 字詞 API 端點
-│   │   └── health.py          # 健康檢查端點
+│   │   ├── health.py          # 健康檢查端點
+│   │   └── history.py         # 練習歷史 API 端點
 │   ├── services/               # 業務邏輯層
-│   │   └── word_service.py    # 字詞資料管理
+│   │   ├── word_service.py    # 字詞資料管理
+│   │   ├── db_service.py      # PostgreSQL 連線池管理
+│   │   └── history_service.py # 練習歷史記錄服務
+│   ├── migrations/             # 資料庫 Migration 檔案
+│   │   └── init_db.sql        # 建立資料表和索引
 │   ├── pyproject.toml         # 專案配置與依賴定義
 │   ├── uv.lock                # 依賴鎖定檔（確保可重現建置）
 │   └── data/                   # 資料檔案
@@ -139,19 +219,29 @@ zhuyin-practice/
 ┌─────────────────────────────────┐
 │      app.py (入口點)            │
 │   建立 Flask app 並註冊路由     │
+│   初始化資料庫連線池            │
 └────────────┬────────────────────┘
              │
     ┌────────┴────────┐
     │                 │
-┌───▼──────┐    ┌────▼────────┐
-│  routes/ │    │  services/  │
-│ (HTTP層) │───>│ (業務邏輯層)│
-└──────────┘    └─────┬───────┘
+┌───▼──────┐    ┌────▼────────────┐
+│  routes/ │    │   services/     │
+│ (HTTP層) │───>│ (業務邏輯層)    │
+│          │    │  - word_service │
+│          │    │  - db_service   │
+│          │    │  - history_svc  │
+└──────────┘    └─────┬───────────┘
                       │
-                ┌─────▼──────┐
-                │  config.py  │
-                │  (配置層)   │
-                └─────────────┘
+                ┌─────▼──────────┐
+                │  config.py      │
+                │  (配置層)       │
+                │  + PostgreSQL   │
+                └────────┬────────┘
+                         │
+                   ┌─────▼─────┐
+                   │PostgreSQL │
+                   │ Database  │
+                   └───────────┘
 ```
 
 ### 架構原則
@@ -207,9 +297,71 @@ zhuyin-practice/
 
 3. **完成！** 不需要修改 `app.py`，Blueprint 會自動處理路由
 
+## 練習歷史追蹤功能
+
+### 功能概述
+
+練習歷史追蹤功能會自動記錄每次練習的詳細資料，包括：
+- 練習的字詞
+- 輸入是否正確
+- 練習開始和結束時間
+- 用時（毫秒）
+
+所有記錄都會儲存到 PostgreSQL 資料庫中，並提供 API 查詢統計資料。
+
+### 自動記錄
+
+當使用者完成一個字的練習時，前端會自動呼叫 API 記錄練習資料，整個過程**不會阻塞練習流程**：
+- 記錄請求以非同步方式發送（non-blocking）
+- 即使 API 失敗，練習仍會繼續進行
+- 網路離線時，練習不受影響
+
+### 資料庫結構
+
+系統使用兩個資料表：
+
+#### `users` 資料表
+- `id`: 使用者 ID（主鍵）
+- `username`: 使用者名稱（唯一）
+- `created_at`: 建立時間
+
+#### `practice_history` 資料表
+- `id`: 記錄 ID（主鍵）
+- `user_id`: 使用者 ID（外鍵）
+- `word`: 練習的字詞
+- `is_correct`: 是否正確
+- `duration_ms`: 用時（毫秒）
+- `practiced_at`: 練習時間
+
+### 索引優化
+
+系統建立了以下索引以提升查詢效能：
+- `idx_user_time`: (user_id, practiced_at DESC) - 用於歷史查詢
+- `idx_username`: (username) - 用於使用者查詢
+- `idx_user_correct`: (user_id, is_correct) - 用於統計計算
+
+### 可用的 API
+
+系統提供三個 API 端點：
+1. **記錄練習** - `POST /api/history/record` - 記錄單次練習
+2. **查詢歷史** - `GET /api/history?username=<user>&limit=<n>&offset=<n>` - 分頁查詢歷史
+3. **統計資料** - `GET /api/history/stats?username=<user>` - 查詢練習統計
+
+詳細的 API 文件請參考下方的 **API 文件** section。
+
+### 設計特點
+
+1. **非阻塞設計** - 記錄 API 失敗不影響練習
+2. **自動建立使用者** - 首次記錄時自動建立使用者記錄
+3. **時間驗證** - 確保結束時間晚於開始時間
+4. **分頁支援** - 歷史查詢支援 limit/offset 分頁
+5. **連線池管理** - 使用 PostgreSQL 連線池提升效能
+
 ## API 文件
 
-### GET /api/words/random
+### 字詞 API
+
+#### GET /api/words/random
 
 返回一個隨機的練習字詞。
 
@@ -222,11 +374,154 @@ zhuyin-practice/
 }
 ```
 
+**欄位說明:**
 - `word`: 中文字
 - `zhuyin`: 注音符號陣列
 - `keys`: 對應的鍵盤按鍵陣列
 
-### GET /health
+---
+
+### 練習歷史 API
+
+#### POST /api/history/record
+
+記錄一次練習。系統會自動建立使用者（如果不存在）。
+
+**請求格式:**
+```json
+{
+  "username": "user",
+  "word": "你",
+  "is_correct": true,
+  "start_time": "2026-02-26T10:30:00.000Z",
+  "end_time": "2026-02-26T10:30:03.500Z"
+}
+```
+
+**欄位說明:**
+- `username` (string, 必填): 使用者名稱
+- `word` (string, 必填): 練習的字詞
+- `is_correct` (boolean, 必填): 是否正確輸入
+- `start_time` (string, 必填): 開始時間（ISO 8601 格式）
+- `end_time` (string, 必填): 結束時間（ISO 8601 格式）
+
+**成功回應 (201 Created):**
+```json
+{
+  "message": "Practice recorded successfully",
+  "record_id": 123
+}
+```
+
+**錯誤回應:**
+- `400 Bad Request`: 缺少必填欄位或格式錯誤
+  ```json
+  {
+    "error": "Missing required field: username"
+  }
+  ```
+- `503 Service Unavailable`: 資料庫連線失敗
+  ```json
+  {
+    "error": "Database unavailable"
+  }
+  ```
+
+#### GET /api/history
+
+查詢使用者的練習歷史（支援分頁）。
+
+**查詢參數:**
+- `username` (string, 必填): 使用者名稱
+- `limit` (integer, 選填): 返回記錄數量（預設：50，最大：100）
+- `offset` (integer, 選填): 跳過的記錄數量（預設：0）
+
+**請求範例:**
+```
+GET /api/history?username=user&limit=10&offset=0
+```
+
+**成功回應 (200 OK):**
+```json
+{
+  "username": "user",
+  "total": 45,
+  "limit": 10,
+  "offset": 0,
+  "history": [
+    {
+      "id": 123,
+      "word": "你",
+      "is_correct": true,
+      "duration_ms": 3500,
+      "practiced_at": "2026-02-26T10:30:03.500Z"
+    },
+    {
+      "id": 122,
+      "word": "好",
+      "is_correct": false,
+      "duration_ms": 5200,
+      "practiced_at": "2026-02-26T10:29:55.000Z"
+    }
+  ]
+}
+```
+
+**欄位說明:**
+- `total`: 總記錄數
+- `limit`: 當前查詢的限制數量
+- `offset`: 當前查詢的起始位置
+- `history`: 練習記錄陣列（依時間倒序）
+  - `id`: 記錄 ID
+  - `word`: 練習的字詞
+  - `is_correct`: 是否正確
+  - `duration_ms`: 用時（毫秒）
+  - `practiced_at`: 練習時間
+
+**錯誤回應:**
+- `400 Bad Request`: 缺少 username 參數
+- `404 Not Found`: 使用者不存在
+
+#### GET /api/history/stats
+
+查詢使用者的統計資料。
+
+**查詢參數:**
+- `username` (string, 必填): 使用者名稱
+
+**請求範例:**
+```
+GET /api/history/stats?username=user
+```
+
+**成功回應 (200 OK):**
+```json
+{
+  "username": "user",
+  "total_practices": 45,
+  "correct_count": 38,
+  "accuracy": 84.44,
+  "average_duration_ms": 4250,
+  "practice_days": 7
+}
+```
+
+**欄位說明:**
+- `total_practices`: 總練習次數
+- `correct_count`: 正確次數
+- `accuracy`: 準確率（百分比，保留兩位小數）
+- `average_duration_ms`: 平均用時（毫秒）
+- `practice_days`: 練習天數（去重計算）
+
+**錯誤回應:**
+- `400 Bad Request`: 缺少 username 參數
+- `404 Not Found`: 使用者不存在
+
+---
+
+### 健康檢查 API
+
+#### GET /health
 
 健康檢查端點。
 
@@ -339,15 +634,52 @@ uv run pytest ../tests/backend/ -v
 
 ### 環境變數配置
 
-後端支援以下環境變數：
+後端支援以下環境變數（可在 `backend/.env` 檔案中設定）：
 
+#### Flask 伺服器配置
 - `PORT`: 伺服器端口（預設：5000）
 - `FLASK_ENV`: 環境模式（`development` 啟用除錯模式）
 
-範例：
+#### PostgreSQL 資料庫配置
+- `POSTGRES_HOST`: PostgreSQL 主機位址（預設：localhost）
+- `POSTGRES_PORT`: PostgreSQL 端口（預設：5432）
+- `POSTGRES_DB`: 資料庫名稱（預設：zhuyin_practice）
+- `POSTGRES_USER`: 資料庫使用者名稱（預設：postgres）
+- `POSTGRES_PASSWORD`: 資料庫密碼（預設：postgres）
+
+#### 範例 `.env` 檔案
+
 ```bash
-PORT=8000 FLASK_ENV=development python app.py
+# Flask 配置
+PORT=5000
+FLASK_ENV=development
+
+# PostgreSQL 配置（本地）
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=zhuyin_practice
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
 ```
+
+#### 使用遠端資料庫
+
+```bash
+# PostgreSQL 配置（遠端）
+POSTGRES_HOST=10.6.142.157
+POSTGRES_PORT=5432
+POSTGRES_DB=test_db
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=your_password
+```
+
+範例啟動指令：
+```bash
+cd backend
+uv run python app.py
+```
+
+後端會自動讀取 `.env` 檔案中的環境變數。
 
 ### 測試
 - **前端**: 獨立的 HTML 測試頁面

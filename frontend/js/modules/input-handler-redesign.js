@@ -6,6 +6,8 @@
 import * as keyboard from './keyboard.js';
 import * as practice from './practice.js';
 import { isZhuyinKey } from './zhuyin-map.js';
+import { recordPractice } from './history.js';
+import { getCurrentUsername } from './auth.js';
 
 let particleSystem = null;
 let statsTracker = null;
@@ -57,8 +59,6 @@ async function handleKeyDown(event) {
     const result = practice.checkInput(key);
 
     if (result.correct) {
-        console.log('Correct input:', key);
-
         // Emit ink drop particles at key position
         if (particleSystem && keyElement) {
             const rect = keyElement.getBoundingClientRect();
@@ -81,8 +81,6 @@ async function handleKeyDown(event) {
 
         // Handle word completion
         if (result.complete) {
-            console.log('Word complete!');
-
             // Emit fireworks at character position
             if (particleSystem) {
                 const charElement = document.getElementById('practice-character');
@@ -98,6 +96,21 @@ async function handleKeyDown(event) {
             if (statsTracker) {
                 statsTracker.incrementWordCount();
                 updateStatsDisplay();
+            }
+
+            // Record practice to history (non-blocking)
+            const username = getCurrentUsername();
+            if (username) {
+                const practiceState = practice.getState();
+                recordPractice({
+                    username: username,
+                    word: practiceState.word,
+                    isCorrect: practiceState.isCorrect,
+                    startTime: practiceState.startTime,
+                    endTime: practiceState.endTime
+                }).catch(err => {
+                    // Error already logged in history.js, continue silently
+                });
             }
 
             // Wait briefly to let user see the complete zhuyin before loading next word
@@ -116,8 +129,6 @@ async function handleKeyDown(event) {
             }
         }
     } else {
-        console.log('Incorrect input. Expected:', result.expected, 'Got:', key);
-
         // Record incorrect input in stats
         if (statsTracker) {
             statsTracker.recordIncorrectInput();

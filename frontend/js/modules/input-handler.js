@@ -29,12 +29,8 @@ async function handleKeyDown(event) {
   const result = practice.checkInput(key);
 
   if (result.correct) {
-    console.log('Correct input:', key);
-
     // Handle word completion
     if (result.complete) {
-      console.log('Word complete!');
-      
       // If this was an auto-advance situation, handle the next key
       if (result.autoAdvance && result.nextKey) {
         // Load next word first
@@ -49,7 +45,6 @@ async function handleKeyDown(event) {
       }
     }
   } else {
-    console.log('Incorrect input. Expected:', result.expected, 'Got:', key);
     // No error feedback per specs - just ignore wrong input
   }
 }

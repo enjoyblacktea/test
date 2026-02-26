@@ -49,7 +49,8 @@ export function checkAuth() {
     }
 
     const parsed = JSON.parse(authData);
-    return parsed.isLoggedIn === true;
+    // 檢查 isLoggedIn 和 username 都存在（向後相容性：舊資料沒有 username 會被視為未登入）
+    return parsed.isLoggedIn === true && parsed.username;
 
   } catch (error) {
     // LocalStorage 不可用或資料損壞，視為未登入
@@ -85,9 +86,10 @@ export function login(username, password) {
   // 驗證帳號密碼（完全比對，區分大小寫）
   if (username === CREDENTIALS.username && password === CREDENTIALS.password) {
     try {
-      // 儲存認證狀態到 LocalStorage
+      // 儲存認證狀態到 LocalStorage（包含 username 以便歷史記錄使用）
       const authData = {
         isLoggedIn: true,
+        username: username,  // 儲存 username 用於練習歷史記錄
         timestamp: Date.now()  // 記錄登入時間（未來可用於實作 session 過期）
       };
 
@@ -120,5 +122,45 @@ export function logout() {
     localStorage.removeItem(AUTH_STORAGE_KEY);
   } catch (error) {
     console.error('Failed to clear auth state:', error);
+  }
+}
+
+/**
+ * 取得當前登入的使用者名稱
+ *
+ * 從 LocalStorage 讀取已登入使用者的 username。用於歷史記錄 API 呼叫。
+ * 如果使用者未登入或資料損壞，返回 null。
+ *
+ * @returns {string|null} 使用者名稱，如果未登入或讀取失敗返回 null
+ * @example
+ * // 取得當前使用者名稱用於記錄練習歷史
+ * const username = getCurrentUsername();
+ * if (username) {
+ *     recordPractice({ username, word: '你', isCorrect: true, ... });
+ * } else {
+ *     console.warn('User not logged in, cannot record history');
+ * }
+ */
+export function getCurrentUsername() {
+  try {
+    const authData = localStorage.getItem(AUTH_STORAGE_KEY);
+
+    if (!authData) {
+      return null;
+    }
+
+    const parsed = JSON.parse(authData);
+
+    // 確認使用者已登入且有 username
+    if (parsed.isLoggedIn && parsed.username) {
+      return parsed.username;
+    }
+
+    return null;
+
+  } catch (error) {
+    // LocalStorage 不可用或 JSON 解析失敗
+    console.warn('Failed to get current username:', error);
+    return null;
   }
 }
