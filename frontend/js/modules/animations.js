@@ -1,6 +1,6 @@
 /**
- * Animation Controller for Zhuyin Practice App
- * Manages CSS animations and provides animation control APIs
+ * Animation Controller for Zhuyin Practice App (Dark Theme - Simplified)
+ * Manages simple CSS class-based animations for modern dark theme
  * @module animations
  */
 
@@ -10,49 +10,76 @@ export class AnimationController {
      */
     constructor() {
         this.animationClasses = {
-            fadeInUp: 'fade-in-up',
-            brushStroke: 'practice-character--brush-writing',
-            stampPress: 'stamp-press',
-            inkSpread: 'ink-spread'
+            correctPulse: 'correct-pulse',
+            completionGlow: 'completion-glow',
+            fadeIn: 'fade-in'
         };
     }
 
     /**
-     * Trigger page load animations (title character stagger)
-     * This is automatically handled by CSS, but can be retriggered if needed
+     * Trigger correct input pulse animation on practice character
+     * @param {HTMLElement} element - The practice character element
      */
-    triggerPageLoadAnimation() {
-        const titleChars = document.querySelectorAll('.title-char');
-        titleChars.forEach((char, index) => {
-            char.style.setProperty('--char-index', index);
-            // Force reflow to restart animation
-            char.style.animation = 'none';
-            setTimeout(() => {
-                char.style.animation = '';
-            }, 10);
-        });
+    triggerCorrectPulse(element) {
+        if (!element) return;
+
+        // Remove any existing animation
+        element.classList.remove(this.animationClasses.correctPulse);
+
+        // Force reflow to restart animation
+        void element.offsetWidth;
+
+        // Add animation class
+        element.classList.add(this.animationClasses.correctPulse);
+
+        // Remove class after animation completes (0.3s as per spec)
+        setTimeout(() => {
+            element.classList.remove(this.animationClasses.correctPulse);
+        }, 300);
     }
 
     /**
-     * Trigger practice character writing animation
+     * Trigger completion glow animation on practice card
+     * @param {HTMLElement} element - The practice card element
+     */
+    triggerCompletionGlow(element) {
+        if (!element) return;
+
+        // Remove any existing animation
+        element.classList.remove(this.animationClasses.completionGlow);
+
+        // Force reflow to restart animation
+        void element.offsetWidth;
+
+        // Add animation class
+        element.classList.add(this.animationClasses.completionGlow);
+
+        // Remove class after animation completes (0.5s as per spec)
+        setTimeout(() => {
+            element.classList.remove(this.animationClasses.completionGlow);
+        }, 500);
+    }
+
+    /**
+     * Trigger fade-in animation on practice character (for new words)
      * @param {HTMLElement} element - The practice character element
      */
     triggerPracticeCharacterAnimation(element) {
         if (!element) return;
 
         // Remove any existing animation
-        element.classList.remove(this.animationClasses.brushStroke);
+        element.classList.remove(this.animationClasses.fadeIn);
 
         // Force reflow
         void element.offsetWidth;
 
         // Add animation class
-        element.classList.add(this.animationClasses.brushStroke);
+        element.classList.add(this.animationClasses.fadeIn);
 
-        // Remove class after animation completes
+        // Remove class after animation completes (0.3s as per spec)
         setTimeout(() => {
-            element.classList.remove(this.animationClasses.brushStroke);
-        }, 1200);
+            element.classList.remove(this.animationClasses.fadeIn);
+        }, 300);
     }
 
     /**
@@ -91,42 +118,6 @@ export class AnimationController {
         }, duration);
     }
 
-    /**
-     * Trigger keyboard key stamp press animation
-     * @param {HTMLElement} keyElement - The keyboard key element
-     */
-    triggerKeyStampAnimation(keyElement) {
-        if (!keyElement) return;
-
-        // Add stamp press class
-        keyElement.classList.add(this.animationClasses.stampPress);
-
-        // Remove class after animation completes (matches CSS duration)
-        setTimeout(() => {
-            keyElement.classList.remove(this.animationClasses.stampPress);
-        }, 300);
-    }
-
-    /**
-     * Manage animation sequence (ensure animations play in correct order)
-     * @param {Array<Function>} animationFunctions - Array of animation functions to execute in sequence
-     * @param {number} delay - Delay between animations in ms (default: 100ms)
-     */
-    async playSequence(animationFunctions, delay = 100) {
-        for (const animFn of animationFunctions) {
-            await animFn();
-            await this.sleep(delay);
-        }
-    }
-
-    /**
-     * Sleep utility for animation sequences
-     * @param {number} ms - Milliseconds to sleep
-     * @returns {Promise} Promise that resolves after delay
-     */
-    sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
 
     /**
      * Add pulse animation to an element (for value updates)

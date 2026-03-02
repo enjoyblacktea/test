@@ -20,6 +20,16 @@ The system SHALL provide visual feedback by highlighting the corresponding key w
 - **THEN** the system uses black text color for contrast on cyan background
 - **THEN** the highlight includes glow effect with rgba(0, 217, 255, 0.5) box-shadow
 
+## REMOVED Requirements
+
+### Requirement: Apply seal stamp visual design to keys
+**Reason**: Seal stamp aesthetic replaced by modern flat design with dark theme.
+**Migration**: Keys now use simple dark gray background (#2a2a2a) with subtle borders, no stamp shadows or warm tones.
+
+### Requirement: Provide brush touch visual feedback on key press
+**Reason**: Brush touch effect replaced by simpler scale/glow animation matching modern dark theme.
+**Migration**: Key press now uses simple scale (1.0 → 1.05) with cyan glow, no shadow depth changes or ink-colored transitions.
+
 ## ADDED Requirements
 
 ### Requirement: Constrain spacebar to fixed width

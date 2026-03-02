@@ -1,62 +1,148 @@
 /**
- * Main Application Entry Point
- * Initializes all modules and starts the practice session
+ * Main entry point for the redesigned Zhuyin practice application
+ * Initializes all modules and sets up the application
  */
 
-import * as keyboard from './modules/keyboard.js';
-import * as inputHandler from './modules/input-handler.js';
+// Import backend authentication module
 import * as auth from './modules/auth-backend.js';
 
+// Import new modules
+// import { ParticleSystem } from './modules/particle-system.js'; // REMOVED: Particle system removed for dark theme
+// import { StatsTracker } from './modules/stats-tracker.js'; // REMOVED: Stats panel removed
+import { AnimationController } from './modules/animations.js';
+
+// Import existing modules
+import * as keyboard from './modules/keyboard.js';
+import * as inputHandler from './modules/input-handler.js';
+
+// DOM Elements
+let logoutButton = null;
+
+// Global instances
+// let particleSystem = null; // REMOVED: Particle system removed for dark theme
+// let statsTracker = null; // REMOVED: Stats panel removed
+let animationController = null;
+
 /**
- * Initialize the application
+ * Initialize the practice application modules
  */
-async function init() {
-  console.log('Initializing Zhuyin Practice App...');
+async function initPracticeApp() {
+    console.log('Initializing redesigned Zhuyin practice app...');
 
-  // Check authentication - redirect to login if not authenticated
-  auth.requireAuth();
+    // REMOVED: Particle system initialization (particle system removed for dark theme)
+    // const canvas = document.getElementById('particles-canvas');
+    // if (canvas) {
+    //     particleSystem = new ParticleSystem(canvas);
+    //     console.log('Particle system initialized');
+    // }
 
-  // Show current user
-  const user = auth.getCurrentUser();
-  if (user) {
-    console.log(`Logged in as: ${user.username}`);
-  }
+    // REMOVED: Stats tracker initialization (stats panel removed)
+    // statsTracker = new StatsTracker();
+    // console.log('Stats tracker initialized');
 
-  // Setup logout button
-  const logoutBtn = document.getElementById('logout-btn');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-      if (confirm('確定要登出嗎？')) {
-        auth.logout();
-      }
-    });
-  }
+    // Initialize animation controller
+    animationController = new AnimationController();
+    console.log('Animation controller initialized');
 
-  try {
-    // Initialize keyboard display
+    // REMOVED: Page load animation (no title animation in dark theme)
+    // animationController.triggerPageLoadAnimation();
+
+    // Initialize existing modules
     keyboard.init();
-    console.log('✓ Keyboard initialized');
 
-    // Initialize input handler
-    inputHandler.init();
-    console.log('✓ Input handler initialized');
+    // Initialize input handler with dependencies
+    inputHandler.init({
+        // particleSystem, // REMOVED: Particle system removed for dark theme
+        // statsTracker, // REMOVED: Stats panel removed
+        animationController
+    });
 
-    // Load first word
-    await inputHandler.loadFirstWord();
-    console.log('✓ First word loaded');
+    // REMOVED: Stats display and reset button (stats panel removed)
+    // updateStatsDisplay();
+    // setupResetButton();
 
-    console.log('Application ready!');
-  } catch (error) {
-    console.error('Failed to initialize application:', error);
-
-    // Show error message to user
-    const practiceWord = document.getElementById('practice-word');
-    if (practiceWord) {
-      practiceWord.textContent = '無法載入練習資料';
-      practiceWord.style.color = 'red';
+    // Load first practice word
+    try {
+        await inputHandler.loadFirstWord();
+        console.log('First word loaded');
+    } catch (error) {
+        console.error('Failed to load first word:', error);
+        showError('無法載入練習字。請確認後端伺服器正在運行。');
     }
-  }
+
+    console.log('App initialization complete');
 }
 
-// Start the app when DOM is loaded
-document.addEventListener('DOMContentLoaded', init);
+// REMOVED: Stats display and reset functions (stats panel removed)
+// function updateStatsDisplay() { ... }
+// function setupResetButton() { ... }
+
+/**
+ * Show error message to user
+ * @param {string} message - Error message
+ */
+function showError(message) {
+    const characterElement = document.getElementById('practice-character');
+    if (characterElement) {
+        characterElement.textContent = message;
+        characterElement.style.fontSize = '1.5rem';
+        characterElement.style.color = 'var(--color-vermillion)';
+    }
+}
+
+/**
+ * Handle logout button click
+ */
+async function handleLogout() {
+    console.log('Logging out...');
+
+    try {
+        // Call backend logout
+        await auth.logout();
+        console.log('Logout successful');
+
+        // Redirect to login page
+        window.location.href = './login.html';
+    } catch (error) {
+        console.error('Logout error:', error);
+        // Even if logout fails, redirect to login
+        window.location.href = './login.html';
+    }
+}
+
+/**
+ * Main initialization function
+ */
+function init() {
+    console.log('Initializing Zhuyin practice app...');
+
+    // Check authentication status
+    if (!auth.isAuthenticated()) {
+        console.log('User not authenticated, redirecting to login...');
+        // Redirect to login page
+        window.location.href = './login.html';
+        return;
+    }
+
+    console.log('User authenticated, initializing practice app...');
+
+    // Get logout button reference
+    logoutButton = document.getElementById('logout-button');
+
+    // Attach logout button handler
+    if (logoutButton) {
+        logoutButton.addEventListener('click', handleLogout);
+    }
+
+    // Initialize practice app
+    initPracticeApp();
+
+    console.log('App initialization complete');
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}

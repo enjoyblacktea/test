@@ -1,0 +1,283 @@
+/**
+ * Redesigned Zhuyin Practice App - Main Stylesheet
+ * Theme: Modern Dark Theme
+ */
+
+/* ========================================
+   CSS Custom Properties (Dark Theme System)
+   ======================================== */
+
+:root {
+    /* Dark Color Palette */
+    --color-bg-primary: #0a0a0a;         /* Pure black - Main background */
+    --color-bg-secondary: #1a1a1a;       /* Dark gray - Cards/elevated elements */
+    --color-bg-elevated: #2a2a2a;        /* Medium gray - Hover states */
+
+    /* Text Colors */
+    --color-text-primary: #ffffff;       /* White - Primary text */
+    --color-text-secondary: #a0a0a0;     /* Light gray - Secondary text */
+    --color-text-disabled: #6a6a6a;      /* Medium gray - Disabled states */
+
+    /* Accent Colors */
+    --color-accent-primary: #00d9ff;     /* Cyan - Primary highlights */
+    --color-accent-success: #00ff88;     /* Green - Success states */
+    --color-accent-error: #ff4444;       /* Red - Error states */
+    --color-accent-warning: #ffaa00;     /* Orange - Warning states */
+
+    /* Typography System */
+    --font-serif: 'Noto Serif TC', 'Microsoft JhengHei', '微軟正黑體', serif;
+    --font-sans: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+
+    /* Spacing System (8px baseline) */
+    --space-1: 0.5rem;   /* 8px */
+    --space-2: 1rem;     /* 16px */
+    --space-3: 1.5rem;   /* 24px */
+    --space-4: 2rem;     /* 32px */
+    --space-5: 3rem;     /* 48px */
+
+    /* Animation Duration */
+    --duration-fast: 0.2s;
+    --duration-normal: 0.4s;
+    --duration-slow: 0.8s;
+}
+
+/* ========================================
+   Global Styles
+   ======================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-sans);
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    min-height: 100vh;
+    line-height: 1.6;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* ========================================
+   Main Container
+   ======================================== */
+
+.container {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-4) var(--space-2);
+}
+
+/* ========================================
+   Logout Button
+   ======================================== */
+
+.logout-button {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    color: var(--color-text-secondary);
+    border: 2px solid var(--color-text-secondary);
+    border-radius: 8px;
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--duration-fast) ease;
+    z-index: 100;
+}
+
+.logout-button:hover {
+    background: var(--color-accent-primary);
+    color: #000000;
+    border-color: var(--color-accent-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 217, 255, 0.3);
+}
+
+.logout-button:active {
+    transform: translateY(0);
+}
+
+/* ========================================
+   Practice Area
+   ======================================== */
+
+.practice-area {
+    position: relative;
+    margin-bottom: var(--space-4);
+}
+
+.keyboard-hint {
+    text-align: center;
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: var(--space-3);
+    line-height: 1.5;
+}
+
+.practice-card {
+    background: var(--color-bg-secondary);
+    border: 1px solid #333;
+    border-radius: 16px;
+    padding: var(--space-5) var(--space-4);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    text-align: center;
+    animation: fade-in 0.3s ease-out;
+}
+
+.practice-character {
+    font-family: var(--font-serif);
+    font-size: clamp(4rem, 10vw, 8rem);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-3);
+}
+
+.zhuyin-display {
+    font-size: 1.5rem;
+    color: var(--color-accent-primary);
+    letter-spacing: 0.5em;
+    margin-bottom: var(--space-3);
+    min-height: 2rem;
+}
+
+/* Progress Bar */
+.progress-bar {
+    width: 100%;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #00d9ff, #00ff88);
+    border-radius: 6px;
+    transition: width var(--duration-normal) ease-out;
+    position: relative;
+}
+
+/* ========================================
+   Keyboard Area
+   ======================================== */
+
+.keyboard-area {
+    margin-bottom: var(--space-4);
+}
+
+/* Keyboard styles will be in keyboard.css */
+
+/* ========================================
+   Animations
+   ======================================== */
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes correct-pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+@keyframes completion-glow {
+    0%, 100% {
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(0, 255, 136, 0.8), 0 8px 32px rgba(0, 0, 0, 0.6);
+    }
+}
+
+/* Animation utility classes */
+.animate-pulse {
+    animation: correct-pulse 0.3s ease-out;
+}
+
+.animate-glow {
+    animation: completion-glow 0.5s ease-out;
+}
+
+/* Classes used by AnimationController */
+.correct-pulse {
+    animation: correct-pulse 0.3s ease-out;
+}
+
+.completion-glow {
+    animation: completion-glow 0.5s ease-out;
+}
+
+.fade-in {
+    animation: fade-in 0.3s ease-out;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+@media (max-width: 768px) {
+    .container {
+        padding: var(--space-2) var(--space-1);
+    }
+
+    .practice-card {
+        padding: var(--space-4) var(--space-2);
+    }
+
+    .logout-button {
+        top: 1rem;
+        right: 1rem;
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .practice-character {
+        font-size: clamp(3rem, 8vw, 6rem);
+    }
+}
+
+/* ========================================
+   Accessibility
+   ======================================== */
+
+/* Focus indicators */
+button:focus-visible,
+input:focus-visible {
+    outline: 2px solid var(--color-accent-primary);
+    outline-offset: 2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
