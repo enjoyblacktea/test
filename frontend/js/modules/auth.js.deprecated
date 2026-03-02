@@ -1,5 +1,23 @@
 /**
- * Authentication Module
+ * ⚠️ DEPRECATED - DO NOT USE ⚠️
+ *
+ * This file has been replaced by auth-backend.js which implements:
+ * - Real backend authentication with PostgreSQL
+ * - JWT token-based security
+ * - Bcrypt password hashing
+ * - Automatic token refresh
+ *
+ * This file is kept for reference only and is used by:
+ * - index-redesign.html (also deprecated)
+ * - main-redesign.js (also deprecated)
+ *
+ * For new development, use:
+ * - frontend/login.html
+ * - frontend/js/modules/auth-backend.js
+ *
+ * ---
+ *
+ * Authentication Module (OLD - Frontend Only)
  *
  * 提供簡單的前端認證功能，使用 LocalStorage 儲存登入狀態。
  *
@@ -8,11 +26,6 @@
  * - LocalStorage 資料可被使用者手動修改
  * - 無後端驗證或安全性保護
  * - 無 session timeout（登入後永久有效直到手動登出）
- *
- * 🔮 未來增強建議：
- * - 使用 timestamp 實作 session 過期機制
- * - 整合後端 API 進行真實的身份驗證
- * - 使用 JWT 或 session token
  */
 
 // 預配置帳號資訊（教育用途）

@@ -34,7 +34,10 @@ async function handleKeyDown(event) {
     // Handle word completion
     if (result.complete) {
       console.log('Word complete!');
-      
+
+      // Record successful attempt (non-blocking)
+      practice.completeAttempt(true);
+
       // If this was an auto-advance situation, handle the next key
       if (result.autoAdvance && result.nextKey) {
         // Load next word first
@@ -51,6 +54,8 @@ async function handleKeyDown(event) {
   } else {
     console.log('Incorrect input. Expected:', result.expected, 'Got:', key);
     // No error feedback per specs - just ignore wrong input
+    // Note: We don't record incorrect attempts per current design
+    // (only complete word attempts are recorded)
   }
 }
 

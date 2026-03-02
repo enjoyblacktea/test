@@ -83,6 +83,10 @@ async function handleKeyDown(event) {
         if (result.complete) {
             console.log('Word complete!');
 
+            // Record attempt to backend (non-blocking)
+            // is_correct will be true if no errors, false if had errors
+            practice.completeAttempt();
+
             // Emit fireworks at character position
             if (particleSystem) {
                 const charElement = document.getElementById('practice-character');

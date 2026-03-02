@@ -1,43 +1,54 @@
 """Word service module for managing practice word data.
 
-This module handles loading and providing access to the practice words data.
-Data is loaded once at module import time and cached in memory.
+DEPRECATED: This module is being migrated to use database-backed character_service.
+The get_random_word() function now calls character_service instead of loading from JSON.
 """
 
 import json
-import random
+import logging
 from config import Config
 
+# Import character service for database-backed retrieval
+try:
+    from services import character_service
+    USE_DATABASE = True
+except ImportError:
+    USE_DATABASE = False
+    logging.warning("character_service not available, falling back to JSON")
 
-# Module-level data storage (loaded once at startup)
+logger = logging.getLogger(__name__)
+
+# Module-level data storage (kept for backwards compatibility/fallback)
 _words_data = []
 
 
 def _load_words():
     """Load words data from JSON file into module-level cache.
 
-    This function is called automatically when the module is imported.
-    Errors are logged but do not prevent the module from loading.
+    DEPRECATED: Used only as fallback if database is unavailable.
     """
     global _words_data
     try:
         with open(Config.WORDS_DATA_PATH, 'r', encoding='utf-8') as f:
             _words_data = json.load(f)
-        print(f"Loaded {len(_words_data)} words from words.json")
+        logger.info(f"Loaded {len(_words_data)} words from words.json (fallback)")
     except FileNotFoundError:
-        print(f"Error: words.json not found at {Config.WORDS_DATA_PATH}")
+        logger.warning(f"words.json not found at {Config.WORDS_DATA_PATH}")
         _words_data = []
     except json.JSONDecodeError as e:
-        print(f"Error: Invalid JSON in words.json: {e}")
+        logger.error(f"Invalid JSON in words.json: {e}")
         _words_data = []
 
 
-# Initialize data on module import
+# Initialize fallback data on module import
 _load_words()
 
 
 def get_random_word():
-    """Get a random practice word from the loaded data.
+    """Get a random practice word.
+
+    Now uses character_service to retrieve from database.
+    Falls back to JSON data if database is unavailable.
 
     Returns:
         dict: A word dictionary with 'word', 'zhuyin', and 'keys' fields,
@@ -48,8 +59,24 @@ def get_random_word():
         >>> if word:
         ...     print(word['word'], word['zhuyin'], word['keys'])
     """
+    # Try database first
+    if USE_DATABASE:
+        try:
+            word_data = character_service.get_random_character(input_method='bopomofo')
+            if word_data:
+                # Return in same format as JSON (without 'id' field)
+                return {
+                    'word': word_data['word'],
+                    'zhuyin': word_data['zhuyin'],
+                    'keys': word_data['keys']
+                }
+        except Exception as e:
+            logger.error(f"Database retrieval failed, falling back to JSON: {e}")
+
+    # Fallback to JSON data
     if not _words_data:
         return None
+    import random
     return random.choice(_words_data)
 
 

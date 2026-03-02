@@ -1,0 +1,21 @@
+⚠️ DEPRECATED - Static Data Files No Longer Used ⚠️
+
+The files in this directory (words.json) are no longer used in the current version
+of the application. All word data is now stored in the PostgreSQL database.
+
+Migration:
+- Old: words.json → Flask API → Frontend
+- New: PostgreSQL characters table → Flask API → Frontend
+
+Data has been migrated to the database via:
+- backend/migrations/init_db.sql
+
+These files are kept for:
+1. Historical reference
+2. Backward compatibility testing
+3. Easy data recovery if needed
+
+For current word data, query the PostgreSQL database:
+  SELECT * FROM characters WHERE input_method = 'bopomofo';
+
+Last updated: 2026-02-27

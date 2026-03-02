@@ -67,6 +67,52 @@
     margin-bottom: 2rem;
 }
 
+/* Tab Navigation */
+.tab-nav {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid var(--color-ink-light, #e0e0e0);
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--color-ink-medium, #6a6a6a);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    bottom: -2px;
+}
+
+.tab-btn:hover {
+    color: var(--color-ink-dark, #3a3a3a);
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.tab-btn.active {
+    color: var(--color-ink-dark, #2a2a2a);
+    font-weight: 700;
+    border-bottom-color: var(--color-ink-dark, #2a2a2a);
+}
+
+/* Auth Forms - Hide by default, show when active */
+.auth-form {
+    display: none;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.auth-form.active {
+    display: flex;
+}
+
 /* Login Form */
 .login-form {
     display: flex;
@@ -117,7 +163,51 @@
     transform: translateY(-1px);
 }
 
-/* Login Error Message */
+/* Error and Success Messages */
+.error-message,
+.success-message {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.875rem;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    display: none;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.error-message {
+    color: #c92a2a;
+    background: #ffe0e0;
+    border-left: 4px solid #c92a2a;
+}
+
+.success-message {
+    color: #2b8a3e;
+    background: #d3f9d8;
+    border-left: 4px solid #2b8a3e;
+}
+
+/* Small helper text */
+small {
+    font-size: 0.75rem;
+    color: var(--color-ink-medium, #6a6a6a);
+    margin-top: -0.25rem;
+}
+
+/* Help text */
+.help-text {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-ink-light, #e0e0e0);
+}
+
+.help-text p {
+    font-size: 0.875rem;
+    color: var(--color-ink-medium, #6a6a6a);
+    margin: 0;
+}
+
+/* Legacy Login Error (keep for backwards compatibility) */
 .login-error {
     font-family: 'Noto Sans TC', sans-serif;
     font-size: 0.875rem;
@@ -168,7 +258,49 @@
     animation: fadeOut 0.3s ease-out;
 }
 
-/* Login Button */
+/* Buttons */
+.btn {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    padding: 0.875rem 1.5rem;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.btn-primary {
+    background: var(--color-ink-dark, #3a3a3a);
+    color: var(--color-paper-light, #ffffff);
+    box-shadow:
+        0 4px 0 rgba(0, 0, 0, 0.2),
+        0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: var(--color-ink-medium, #2a2a2a);
+    transform: translateY(-2px);
+    box-shadow:
+        0 6px 0 rgba(0, 0, 0, 0.2),
+        0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow:
+        0 2px 0 rgba(0, 0, 0, 0.2),
+        0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Login Button (legacy) */
 .login-button {
     font-family: 'Noto Sans TC', sans-serif;
     font-size: 1.05rem;

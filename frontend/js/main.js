@@ -5,12 +5,32 @@
 
 import * as keyboard from './modules/keyboard.js';
 import * as inputHandler from './modules/input-handler.js';
+import * as auth from './modules/auth-backend.js';
 
 /**
  * Initialize the application
  */
 async function init() {
   console.log('Initializing Zhuyin Practice App...');
+
+  // Check authentication - redirect to login if not authenticated
+  auth.requireAuth();
+
+  // Show current user
+  const user = auth.getCurrentUser();
+  if (user) {
+    console.log(`Logged in as: ${user.username}`);
+  }
+
+  // Setup logout button
+  const logoutBtn = document.getElementById('logout-btn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      if (confirm('確定要登出嗎？')) {
+        auth.logout();
+      }
+    });
+  }
 
   try {
     // Initialize keyboard display
@@ -28,7 +48,7 @@ async function init() {
     console.log('Application ready!');
   } catch (error) {
     console.error('Failed to initialize application:', error);
-    
+
     // Show error message to user
     const practiceWord = document.getElementById('practice-word');
     if (practiceWord) {
