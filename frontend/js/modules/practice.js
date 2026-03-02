@@ -147,42 +147,46 @@ function updateDisplay() {
 /**
  * Check if user input is correct
  * @param {string} key - The keyboard key pressed
- * @returns {Object} Result {correct, complete, expected}
+ * @returns {Object} Result {correct, complete, expected, progress}
  */
 export function checkInput(key) {
   const expectedKey = state.keys[state.currentIndex];
-  
+
   console.log(`[checkInput] key='${key}', expected='${expectedKey}', currentIndex=${state.currentIndex}, totalKeys=${state.keys.length}`);
-  
+
   // Handle first tone (space) - can be space or auto-advance
   if (expectedKey === ' ' && key === ' ') {
     // User explicitly pressed space for first tone
     state.currentIndex++;
     const complete = state.currentIndex >= state.keys.length;
+    const progress = { current: state.currentIndex, total: state.keys.length };
     console.log(`[checkInput] Space pressed, complete=${complete}`);
-    return { correct: true, complete, expected: ' ' };
+    return { correct: true, complete, expected: ' ', progress };
   }
-  
+
   // Check if this is trying to start a new word (first tone auto-advance)
   if (expectedKey === ' ' && key !== ' ') {
     // Treat previous word as complete, but don't process current key yet
     // The caller should handle loading next word
+    const progress = { current: state.keys.length, total: state.keys.length };
     console.log(`[checkInput] Auto-advance on space, nextKey='${key}'`);
-    return { correct: true, complete: true, expected: ' ', autoAdvance: true, nextKey: key };
+    return { correct: true, complete: true, expected: ' ', autoAdvance: true, nextKey: key, progress };
   }
-  
+
   // Normal key validation
   if (key === expectedKey) {
     state.currentIndex++;
     const complete = state.currentIndex >= state.keys.length;
+    const progress = { current: state.currentIndex, total: state.keys.length };
     console.log(`[checkInput] Correct! complete=${complete}, newIndex=${state.currentIndex}`);
-    return { correct: true, complete, expected: expectedKey };
+    return { correct: true, complete, expected: expectedKey, progress };
   }
 
   // Mark that user made an error
   state.hasErrors = true;
+  const progress = { current: state.currentIndex, total: state.keys.length };
   console.log(`[checkInput] Incorrect key - errors tracked`);
-  return { correct: false, complete: false, expected: expectedKey };
+  return { correct: false, complete: false, expected: expectedKey, progress };
 }
 
 /**

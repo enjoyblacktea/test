@@ -1,39 +1,53 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>注音輸入法練習</title>
-    <link rel="stylesheet" href="styles/main.css">
+    <title>注音輸入練習 - Dark Theme</title>
+
+    <!-- Preconnect to Google Fonts for faster loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Load Noto Serif TC and Noto Sans TC fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- CSS Stylesheets -->
+    <link rel="stylesheet" href="styles/styles.css">
     <link rel="stylesheet" href="styles/keyboard.css">
-    <link rel="stylesheet" href="styles/practice.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>注音輸入法練習</h1>
-            <p class="subtitle">看中文字，用注音打出來</p>
-            <button id="logout-btn" style="position: absolute; top: 20px; right: 20px; padding: 8px 16px; border: 2px solid #666; background: white; border-radius: 6px; cursor: pointer; font-size: 14px;">登出</button>
-        </header>
+    <!-- Practice Screen -->
+    <div id="practice-screen">
+        <div class="container">
+            <!-- Logout Button (Top Right) -->
+            <button id="logout-button" class="logout-button">登出</button>
 
-        <main>
-            <!-- Practice Display Area -->
-            <div id="practice-area">
-                <div class="practice-label">請輸入這個字的注音：</div>
-                <div id="practice-word" class="practice-word">載入中...</div>
-                <div id="target-zhuyin" class="target-zhuyin"></div>
-            </div>
+            <!-- Practice Area -->
+            <section class="practice-area">
+                <p class="keyboard-hint">使用 QWERTY 鍵盤輸入注音符號。</p>
 
-            <!-- Virtual Keyboard -->
-            <div id="keyboard"></div>
-        </main>
+                <div class="practice-card">
+                    <div id="practice-character" class="practice-character">載入中...</div>
+                    <div id="zhuyin-display" class="zhuyin-display"></div>
 
-        <footer>
-            <p class="hint">提示：按下鍵盤上的按鍵來輸入注音符號</p>
-            <p class="browser-requirement">需要 Chrome 61+、Firefox 60+ 或 Safari 11+ 瀏覽器</p>
-        </footer>
+                    <!-- Progress Bar -->
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill">
+                            <div class="progress-ink"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Keyboard Area -->
+            <section class="keyboard-area">
+                <div id="keyboard" class="keyboard"></div>
+            </section>
+        </div>
     </div>
 
+    <!-- JavaScript Modules -->
     <script type="module" src="js/main.js"></script>
 </body>
 </html>

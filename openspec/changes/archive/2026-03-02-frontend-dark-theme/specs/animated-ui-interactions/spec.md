@@ -1,3 +1,51 @@
+## REMOVED Requirements
+
+### Requirement: Animate page load with staggered reveals
+**Reason**: Title element removed in dark theme; no page load animations needed for simplified layout.
+**Migration**: Remove title character animations and AnimationController.triggerPageLoadAnimation(). Practice card appears immediately without animation.
+
+### Requirement: Animate practice word with brush writing effect
+**Reason**: Brush calligraphy animation removed in favor of instant character display.
+**Migration**: Practice character appears immediately without stroke-by-stroke animation. Keep simple fade-in for card if desired.
+
+### Requirement: Animate keyboard key press with seal stamp effect
+**Reason**: Seal stamp aesthetic replaced by simple scale+glow effect.
+**Migration**: Use simplified pulse animation defined in MODIFIED requirements below.
+
+### Requirement: Animate progress bar with ink rendering effect
+**Reason**: Ink渲染 visual replaced by standard gradient fill.
+**Migration**: Progress bar uses simple linear gradient (cyan to green) with ease-out transition. No special ink spreading effect.
+
+## MODIFIED Requirements
+
+### Requirement: Provide smooth CSS transitions for interactive elements
+The system SHALL apply CSS transitions to all interactive elements for smooth state changes using modern dark theme styling.
+
+#### Scenario: Hover states transition smoothly
+- **WHEN** user hovers over an interactive element (button, logout button)
+- **THEN** the system transitions background, border, and color properties
+- **THEN** the transition duration is 0.2-0.3s with ease-out timing
+- **THEN** hover colors use dark theme palette (cyan highlight, lighter backgrounds)
+
+#### Scenario: Focus states have visual feedback
+- **WHEN** an element receives keyboard focus
+- **THEN** the system applies a visible focus indicator with cyan (#00d9ff) outline
+- **THEN** the focus indicator has 2px width and smooth transition
+- **THEN** the focus indicator follows WCAG accessibility guidelines
+
+### Requirement: Use CSS animations instead of JavaScript where possible
+The system SHALL implement animations primarily using CSS @keyframes and transitions, only using JavaScript for triggering and control logic.
+
+#### Scenario: Animations are defined in CSS
+- **WHEN** any animation plays
+- **THEN** the system uses CSS @keyframes for motion definitions
+- **THEN** JavaScript only adds/removes CSS classes to trigger animations
+
+#### Scenario: Animations leverage GPU acceleration
+- **WHEN** CSS animations are defined
+- **THEN** the system uses transform and opacity properties (GPU-accelerated)
+- **THEN** the system avoids animating layout properties (width, height, top, left)
+
 ## ADDED Requirements
 
 ### Requirement: Provide correct input pulse animation
@@ -64,31 +112,3 @@ The system SHALL use minimal, performant animations that avoid complex physics s
 - **WHEN** user has prefers-reduced-motion enabled
 - **THEN** the system disables or drastically shortens all animations
 - **THEN** animation durations become 0.01ms or instant
-
-### Requirement: Provide smooth CSS transitions for interactive elements
-The system SHALL apply CSS transitions to all interactive elements for smooth state changes using modern dark theme styling.
-
-#### Scenario: Hover states transition smoothly
-- **WHEN** user hovers over an interactive element (button, logout button)
-- **THEN** the system transitions background, border, and color properties
-- **THEN** the transition duration is 0.2-0.3s with ease-out timing
-- **THEN** hover colors use dark theme palette (cyan highlight, lighter backgrounds)
-
-#### Scenario: Focus states have visual feedback
-- **WHEN** an element receives keyboard focus
-- **THEN** the system applies a visible focus indicator with cyan (#00d9ff) outline
-- **THEN** the focus indicator has 2px width and smooth transition
-- **THEN** the focus indicator follows WCAG accessibility guidelines
-
-### Requirement: Use CSS animations instead of JavaScript where possible
-The system SHALL implement animations primarily using CSS @keyframes and transitions, only using JavaScript for triggering and control logic.
-
-#### Scenario: Animations are defined in CSS
-- **WHEN** any animation plays
-- **THEN** the system uses CSS @keyframes for motion definitions
-- **THEN** JavaScript only adds/removes CSS classes to trigger animations
-
-#### Scenario: Animations leverage GPU acceleration
-- **WHEN** CSS animations are defined
-- **THEN** the system uses transform and opacity properties (GPU-accelerated)
-- **THEN** the system avoids animating layout properties (width, height, top, left)

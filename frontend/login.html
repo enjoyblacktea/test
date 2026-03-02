@@ -110,7 +110,7 @@
         // Check if already logged in
         if (auth.isAuthenticated()) {
             console.log('Already logged in, redirecting to practice page');
-            window.location.href = './index-redesign.html';
+            window.location.href = './index.html';
         }
 
         // Tab switching
@@ -184,7 +184,7 @@
 
                 if (result.success) {
                     console.log('Login successful, redirecting...');
-                    window.location.href = './index-redesign.html';
+                    window.location.href = './index.html';
                 } else {
                     showError('login-error', result.error || '登入失敗，請檢查帳號密碼');
                 }
