@@ -8,7 +8,7 @@ import * as auth from './modules/auth-backend.js';
 
 // Import new modules
 import { ParticleSystem } from './modules/particle-system.js';
-import { StatsTracker } from './modules/stats-tracker.js';
+// import { StatsTracker } from './modules/stats-tracker.js'; // REMOVED: Stats panel removed
 import { AnimationController } from './modules/animations.js';
 
 // Import existing modules
@@ -20,7 +20,7 @@ let logoutButton = null;
 
 // Global instances
 let particleSystem = null;
-let statsTracker = null;
+// let statsTracker = null; // REMOVED: Stats panel removed
 let animationController = null;
 
 /**
@@ -36,9 +36,9 @@ async function initPracticeApp() {
         console.log('Particle system initialized');
     }
 
-    // Initialize stats tracker
-    statsTracker = new StatsTracker();
-    console.log('Stats tracker initialized');
+    // REMOVED: Stats tracker initialization (stats panel removed)
+    // statsTracker = new StatsTracker();
+    // console.log('Stats tracker initialized');
 
     // Initialize animation controller
     animationController = new AnimationController();
@@ -53,15 +53,13 @@ async function initPracticeApp() {
     // Initialize input handler with dependencies
     inputHandler.init({
         particleSystem,
-        statsTracker,
+        // statsTracker, // REMOVED: Stats panel removed
         animationController
     });
 
-    // Load initial stats display
-    updateStatsDisplay();
-
-    // Set up reset button event listener
-    setupResetButton();
+    // REMOVED: Stats display and reset button (stats panel removed)
+    // updateStatsDisplay();
+    // setupResetButton();
 
     // Load first practice word
     try {
@@ -75,53 +73,9 @@ async function initPracticeApp() {
     console.log('App initialization complete');
 }
 
-/**
- * Update statistics display in UI
- */
-function updateStatsDisplay() {
-    if (!statsTracker) return;
-
-    const elements = {
-        words: document.getElementById('stat-words'),
-        accuracy: document.getElementById('stat-accuracy'),
-        streak: document.getElementById('stat-streak')
-    };
-
-    statsTracker.updateDisplay(elements);
-}
-
-/**
- * Setup reset button event listener
- */
-function setupResetButton() {
-    const resetButton = document.getElementById('reset-stats');
-    if (!resetButton) return;
-
-    resetButton.addEventListener('click', () => {
-        // Show confirmation dialog
-        const confirmed = confirm(
-            '確定要重置所有統計資料嗎？\n' +
-            '這個動作無法復原。\n\n' +
-            '目前統計：\n' +
-            `已練習：${statsTracker.getTotalWords()} 字\n` +
-            `準確率：${statsTracker.getAccuracy()}%\n` +
-            `最長連續：${statsTracker.getLongestStreak()}`
-        );
-
-        if (confirmed) {
-            // Reset stats
-            statsTracker.reset();
-
-            // Update display
-            updateStatsDisplay();
-
-            // Show success feedback
-            alert('統計資料已重置！');
-
-            console.log('Stats reset by user');
-        }
-    });
-}
+// REMOVED: Stats display and reset functions (stats panel removed)
+// function updateStatsDisplay() { ... }
+// function setupResetButton() { ... }
 
 /**
  * Show error message to user
