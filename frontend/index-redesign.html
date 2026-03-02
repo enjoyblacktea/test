@@ -17,7 +17,6 @@
     <link rel="stylesheet" href="styles/animations.css">
     <link rel="stylesheet" href="styles/particles.css">
     <link rel="stylesheet" href="styles/keyboard-redesign.css">
-    <link rel="stylesheet" href="styles/stats-panel.css">
 </head>
 <body>
     <!-- Canvas for particle effects -->
@@ -47,26 +46,6 @@
             <div class="header-decoration header-decoration--bottom"></div>
             <button id="logout-button" class="logout-button">登出</button>
         </header>
-
-        <!-- Statistics Panel -->
-        <section class="stats-panel">
-            <div class="stats-panel__item">
-                <span class="stats-panel__icon">📖</span>
-                <div class="stats-panel__value" id="stat-words">0</div>
-                <div class="stats-panel__label">已練習</div>
-            </div>
-            <div class="stats-panel__item">
-                <span class="stats-panel__icon">✨</span>
-                <div class="stats-panel__value" id="stat-accuracy">100%</div>
-                <div class="stats-panel__label">準確率</div>
-            </div>
-            <div class="stats-panel__item">
-                <span class="stats-panel__icon">🔥</span>
-                <div class="stats-panel__value" id="stat-streak">0</div>
-                <div class="stats-panel__label">連續正確</div>
-            </div>
-            <button class="stats-panel__reset" id="reset-stats" title="重置統計">重置</button>
-        </section>
 
         <!-- Practice Area -->
         <section class="practice-area">
