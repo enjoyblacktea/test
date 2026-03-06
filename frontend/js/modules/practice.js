@@ -15,7 +15,8 @@ const state = {
   characterText: '',      // Character text for lookup
   startedAt: null,        // Timestamp when word was loaded
   attemptRecorded: false, // Track if attempt already recorded
-  hasErrors: false        // Track if user made any mistakes
+  hasErrors: false,       // Track if user made any mistakes
+  keystrokes: []          // Per-key data collected during this attempt
 };
 
 /**
@@ -58,6 +59,7 @@ export function loadWord(data) {
   state.startedAt = new Date();
   state.attemptRecorded = false;
   state.hasErrors = false;
+  state.keystrokes = [];
 
   // Update display
   updateDisplay();
@@ -91,7 +93,7 @@ async function recordAttempt(characterId, character, isCorrect, startTime, endTi
     };
 
     // Use apiPost but don't wait for response (fire and forget)
-    api.apiPost('/attempts', attemptData)
+    api.apiPost('/attempts', { ...attemptData, keystrokes: state.keystrokes })
       .then(() => {
         console.log('✓ Attempt recorded:', character, isCorrect ? 'correct' : 'incorrect');
       })
@@ -160,6 +162,7 @@ export function checkInput(key) {
     state.currentIndex++;
     const complete = state.currentIndex >= state.keys.length;
     const progress = { current: state.currentIndex, total: state.keys.length };
+    state.keystrokes.push({ key, order: state.keystrokes.length, typed_at: new Date().toISOString(), is_correct: true });
     console.log(`[checkInput] Space pressed, complete=${complete}`);
     return { correct: true, complete, expected: ' ', progress };
   }
@@ -178,12 +181,14 @@ export function checkInput(key) {
     state.currentIndex++;
     const complete = state.currentIndex >= state.keys.length;
     const progress = { current: state.currentIndex, total: state.keys.length };
+    state.keystrokes.push({ key, order: state.keystrokes.length, typed_at: new Date().toISOString(), is_correct: true });
     console.log(`[checkInput] Correct! complete=${complete}, newIndex=${state.currentIndex}`);
     return { correct: true, complete, expected: expectedKey, progress };
   }
 
   // Mark that user made an error
   state.hasErrors = true;
+  state.keystrokes.push({ key, order: state.keystrokes.length, typed_at: new Date().toISOString(), is_correct: false });
   const progress = { current: state.currentIndex, total: state.keys.length };
   console.log(`[checkInput] Incorrect key - errors tracked`);
   return { correct: false, complete: false, expected: expectedKey, progress };

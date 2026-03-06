@@ -65,6 +65,23 @@ CREATE INDEX IF NOT EXISTS idx_character_attempts ON typing_attempts(character_i
 -- Composite index for filtering user attempts by correctness
 CREATE INDEX IF NOT EXISTS idx_user_correct ON typing_attempts(user_id, is_correct);
 
+-- Keystroke events table: Store per-key data for each practice attempt
+CREATE TABLE IF NOT EXISTS keystroke_events (
+    id          SERIAL PRIMARY KEY,
+    attempt_id  INTEGER NOT NULL,
+    key_value   VARCHAR(10) NOT NULL,
+    key_order   SMALLINT NOT NULL,
+    typed_at    TIMESTAMP WITH TIME ZONE NOT NULL,
+    is_correct_key BOOLEAN NOT NULL,
+    CONSTRAINT fk_keystroke_attempt
+        FOREIGN KEY (attempt_id)
+        REFERENCES typing_attempts(id)
+        ON DELETE CASCADE
+);
+
+-- Index for querying keystrokes by attempt
+CREATE INDEX IF NOT EXISTS idx_keystroke_attempt ON keystroke_events(attempt_id);
+
 -- ============================================================================
 -- SEED DATA
 -- ============================================================================

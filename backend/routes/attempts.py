@@ -77,13 +77,17 @@ def record_attempt(user_id):
                 'error': 'Invalid timestamp format. Use ISO 8601 format (e.g., 2024-01-01T00:00:00Z)'
             }), 400
 
+        # Optional keystrokes array (backward-compatible)
+        keystrokes = data.get('keystrokes') or None
+
         # Record attempt (non-blocking - return immediately)
         attempt_id = attempt_service.record_attempt(
             user_id=user_id,
             character_id=character_id,
             started_at=started_at,
             ended_at=ended_at,
-            is_correct=is_correct
+            is_correct=is_correct,
+            keystrokes=keystrokes
         )
 
         if attempt_id is None:
