@@ -3,7 +3,9 @@
 import logging
 from datetime import datetime
 from typing import Optional, Dict, List, Any
-from .db_service import execute_query
+import psycopg2
+from psycopg2.extras import execute_values
+from .db_service import execute_query, get_db_connection, return_db_connection
 from models.typing_attempt import TypingAttempt
 
 logger = logging.getLogger(__name__)
@@ -14,9 +16,13 @@ def record_attempt(
     character_id: int,
     started_at: datetime,
     ended_at: datetime,
-    is_correct: bool
+    is_correct: bool,
+    keystrokes: Optional[List[Dict]] = None
 ) -> Optional[int]:
-    """Record a practice attempt to the database.
+    """Record a practice attempt and its keystrokes to the database.
+
+    Both typing_attempts and keystroke_events are written in a single transaction.
+    If keystrokes is None or empty, only typing_attempts is written.
 
     Args:
         user_id: User ID
@@ -24,50 +30,68 @@ def record_attempt(
         started_at: When user started typing
         ended_at: When user finished typing
         is_correct: Whether the attempt was successful
+        keystrokes: Optional list of keystroke dicts with keys:
+            key (str), order (int), typed_at (str ISO8601), is_correct (bool)
 
     Returns:
         Attempt ID if successful, None if failed
-
-    Note:
-        duration_ms is automatically calculated by the database as a computed column.
-
-    Example:
-        attempt_id = record_attempt(
-            user_id=1,
-            character_id=5,
-            started_at=datetime.now(),
-            ended_at=datetime.now(),
-            is_correct=True
-        )
     """
+    conn = None
     try:
-        query = """
+        conn = get_db_connection()
+        conn.autocommit = False
+        cursor = conn.cursor()
+
+        # Insert typing_attempts row
+        cursor.execute(
+            """
             INSERT INTO typing_attempts (user_id, character_id, started_at, ended_at, is_correct, created_at)
             VALUES (%s, %s, %s, %s, %s, NOW())
             RETURNING id
-        """
-        row = execute_query(
-            query,
-            (user_id, character_id, started_at, ended_at, is_correct),
-            fetch_one=True,
-            commit=True
+            """,
+            (user_id, character_id, started_at, ended_at, is_correct)
         )
-
-        if row:
-            attempt_id = row[0]
-            logger.info(
-                f"Recorded attempt: user={user_id}, character={character_id}, "
-                f"correct={is_correct}, id={attempt_id}"
-            )
-            return attempt_id
-        else:
+        row = cursor.fetchone()
+        if not row:
+            conn.rollback()
             logger.error("Failed to record attempt: no ID returned")
             return None
 
+        attempt_id = row[0]
+
+        # Batch insert keystroke_events if provided
+        if keystrokes:
+            execute_values(
+                cursor,
+                """
+                INSERT INTO keystroke_events (attempt_id, key_value, key_order, typed_at, is_correct_key)
+                VALUES %s
+                """,
+                [
+                    (attempt_id, k['key'], k['order'], k['typed_at'], k['is_correct'])
+                    for k in keystrokes
+                ]
+            )
+
+        conn.commit()
+        cursor.close()
+
+        logger.info(
+            f"Recorded attempt: user={user_id}, character={character_id}, "
+            f"correct={is_correct}, id={attempt_id}, keystrokes={len(keystrokes) if keystrokes else 0}"
+        )
+        return attempt_id
+
     except Exception as e:
+        if conn:
+            conn.rollback()
         logger.error(f"Error recording attempt: {e}")
         logger.error(f"  user_id={user_id}, character_id={character_id}, is_correct={is_correct}")
         return None
+    finally:
+        if conn:
+            conn.autocommit = True
+            return_db_connection(conn)
 
 
 def get_user_attempts(
