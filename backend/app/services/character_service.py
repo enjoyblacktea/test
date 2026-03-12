@@ -7,6 +7,30 @@ from app.models.character import Character
 
 logger = logging.getLogger(__name__)
 
+# 小鶴雙拼：聲母字母 → 注音符號
+XIAOHE_INITIAL_TO_ZHUYIN = {
+    "b": "ㄅ", "p": "ㄆ", "m": "ㄇ", "f": "ㄈ",
+    "d": "ㄉ", "t": "ㄊ", "n": "ㄋ", "l": "ㄌ",
+    "g": "ㄍ", "k": "ㄎ", "h": "ㄏ",
+    "j": "ㄐ", "q": "ㄑ", "x": "ㄒ",
+    "v": "ㄓ",  # zh
+    "i": "ㄔ",  # ch
+    "u": "ㄕ",  # sh
+    "r": "ㄖ", "z": "ㄗ", "c": "ㄘ", "s": "ㄙ",
+}
+
+# 小鶴雙拼：韻母字母 → 注音符號（取最常見的一個）
+XIAOHE_FINAL_TO_ZHUYIN = {
+    "a": "ㄚ", "o": "ㄛ", "e": "ㄜ",
+    "i": "ㄧ", "u": "ㄨ", "v": "ㄩ",
+    "q": "ㄧㄡ", "w": "ㄟ", "r": "ㄨㄢ", "t": "ㄩㄝ",
+    "y": "ㄨㄣ", "p": "ㄧㄝ", "s": "ㄨㄥ",
+    "d": "ㄞ", "f": "ㄣ", "g": "ㄥ", "h": "ㄤ",
+    "j": "ㄢ", "k": "ㄧㄥ", "l": "ㄧㄤ",
+    "z": "ㄡ", "x": "ㄨㄚ", "c": "ㄠ", "b": "ㄧㄣ",
+    "n": "ㄧㄠ", "m": "ㄧㄢ",
+}
+
 KEY_TO_ZHUYIN = {
     "1": "ㄅ", "q": "ㄆ", "a": "ㄇ", "z": "ㄈ",
     "2": "ㄉ", "w": "ㄊ", "s": "ㄋ", "x": "ㄌ",
@@ -48,7 +72,15 @@ async def get_random_character(db: AsyncSession, input_method: str = "bopomofo")
         if not characters:
             return None
         char = random.choice(characters)
-        zhuyin, keys = parse_input_code(char.input_code)
+        if input_method == "shuangpin":
+            # 雙拼：keys 為字母碼（用於輸入驗證），zhuyin 轉換為注音符號（用於顯示）
+            keys = list(char.input_code)
+            initial_key, final_key = char.input_code[0], char.input_code[1]
+            initial_zh = XIAOHE_INITIAL_TO_ZHUYIN.get(initial_key, initial_key)
+            final_zh = XIAOHE_FINAL_TO_ZHUYIN.get(final_key, final_key)
+            zhuyin = [initial_zh, final_zh]
+        else:
+            zhuyin, keys = parse_input_code(char.input_code)
         return {"id": char.id, "word": char.character, "zhuyin": zhuyin, "keys": keys}
     except Exception as e:
         logger.error(f"Error getting random character: {e}")

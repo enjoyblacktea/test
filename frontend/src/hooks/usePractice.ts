@@ -2,16 +2,20 @@ import { useState, useCallback, useRef } from 'react';
 import type { WordResponse, KeystrokeEvent } from '../types';
 import { isZhuyinKey } from '../utils/zhuyin-map';
 import * as practiceApi from '../api/practice';
+import type { InputMethod } from './useInputMethod';
 
 export function usePractice() {
   const [word, setWord] = useState<WordResponse | null>(null);
   const [inputIndex, setInputIndex] = useState(0);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const inputMethodRef = useRef<InputMethod>('zhuyin');
   const keystrokesRef = useRef<KeystrokeEvent[]>([]);
   const startedAtRef = useRef<string>('');
 
-  const loadWord = useCallback(async () => {
-    const data = await practiceApi.getWord();
+  const loadWord = useCallback(async (inputMethod: InputMethod = 'zhuyin') => {
+    inputMethodRef.current = inputMethod;
+    const apiInputMethod = inputMethod === 'zhuyin' ? 'bopomofo' : 'shuangpin';
+    const data = await practiceApi.getWord(apiInputMethod);
     setWord(data);
     setInputIndex(0);
     setIsCorrect(null);
@@ -21,7 +25,13 @@ export function usePractice() {
 
   const checkInput = useCallback((key: string) => {
     if (!word || isCorrect !== null) return;
-    if (!isZhuyinKey(key)) return;
+
+    // 雙拼模式：接受字母鍵；注音模式：僅接受注音鍵
+    if (inputMethodRef.current === 'shuangpin') {
+      if (!/^[a-z]$/.test(key)) return;
+    } else {
+      if (!isZhuyinKey(key)) return;
+    }
 
     const expectedKey = word.keys[inputIndex];
     const correct = key === expectedKey;
@@ -36,13 +46,11 @@ export function usePractice() {
     if (correct) {
       const nextIndex = inputIndex + 1;
       if (nextIndex >= word.keys.length) {
-        // Attempt complete - correct
         completeAttempt(true);
       } else {
         setInputIndex(nextIndex);
       }
     } else {
-      // Wrong key - mark incorrect and complete
       completeAttempt(false);
     }
   }, [word, inputIndex, isCorrect]);
@@ -58,8 +66,7 @@ export function usePractice() {
       is_correct: correct,
       keystrokes: [...keystrokesRef.current],
     });
-    // Auto-load next word after short delay
-    setTimeout(() => loadWord(), 800);
+    setTimeout(() => loadWord(inputMethodRef.current), 800);
   }, [word, loadWord]);
 
   return { word, inputIndex, isCorrect, loadWord, checkInput };

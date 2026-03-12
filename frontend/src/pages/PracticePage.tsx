@@ -4,18 +4,20 @@ import { VirtualKeyboard } from '../components/VirtualKeyboard';
 import { usePractice } from '../hooks/usePractice';
 import { useKeyboard } from '../hooks/useKeyboard';
 import { useGoal } from '../hooks/useGoal';
+import { useInputMethod } from '../hooks/useInputMethod';
 import { useAuth } from '../contexts/AuthContext';
 
 export function PracticePage() {
   const { word, inputIndex, isCorrect, loadWord, checkInput } = usePractice();
   const { logout, user } = useAuth();
   const { dailyTarget, completedToday, loadGoal, updateGoal, incrementCompleted } = useGoal();
+  const { inputMethod, setInputMethod } = useInputMethod();
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const [goalInput, setGoalInput] = useState('');
   const [showGoalForm, setShowGoalForm] = useState(false);
   const prevIsCorrect = useRef<boolean | null>(null);
 
-  useEffect(() => { loadWord(); }, [loadWord]);
+  useEffect(() => { loadWord(inputMethod); }, [loadWord]);
   useEffect(() => { loadGoal(); }, [loadGoal]);
 
   // 每次 isCorrect 從 null 變為有值，代表完成一次嘗試
@@ -41,6 +43,11 @@ export function PracticePage() {
     setShowGoalForm(false);
   };
 
+  const handleSwitchMethod = (method: typeof inputMethod) => {
+    setInputMethod(method);
+    loadWord(method);
+  };
+
   const progressText = dailyTarget === null
     ? '尚未設定目標'
     : `${completedToday} / ${dailyTarget} 題`;
@@ -49,6 +56,20 @@ export function PracticePage() {
     <div className="practice-container">
       <header className="practice-header">
         <span className="user-info">{user?.username}</span>
+        <div className="input-method-toggle">
+          <button
+            className={`method-btn${inputMethod === 'zhuyin' ? ' active' : ''}`}
+            onClick={() => handleSwitchMethod('zhuyin')}
+          >
+            注音
+          </button>
+          <button
+            className={`method-btn${inputMethod === 'shuangpin' ? ' active' : ''}`}
+            onClick={() => handleSwitchMethod('shuangpin')}
+          >
+            雙拼
+          </button>
+        </div>
         <div className="goal-area">
           <span className="goal-progress">{progressText}</span>
           <button className="goal-btn" onClick={() => setShowGoalForm((v) => !v)}>
@@ -77,12 +98,13 @@ export function PracticePage() {
             zhuyin={word.zhuyin}
             inputIndex={inputIndex}
             isCorrect={isCorrect}
+            inputMethod={inputMethod}
           />
         ) : (
           <div className="loading">載入中...</div>
         )}
       </main>
-      <VirtualKeyboard activeKey={activeKey} />
+      <VirtualKeyboard activeKey={activeKey} layout={inputMethod} />
     </div>
   );
 }

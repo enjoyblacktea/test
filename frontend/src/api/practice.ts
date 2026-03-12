@@ -1,8 +1,10 @@
 import client from './client';
 import type { WordResponse, AttemptRequest, AttemptResponse } from '../types';
 
-export async function getWord(): Promise<WordResponse> {
-  const { data } = await client.get<WordResponse>('/words/random');
+export async function getWord(inputMethod: string = 'bopomofo'): Promise<WordResponse> {
+  const { data } = await client.get<WordResponse>('/words/random', {
+    params: { input_method: inputMethod },
+  });
   return data;
 }
 

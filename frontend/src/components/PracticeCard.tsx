@@ -1,10 +1,12 @@
 import { ProgressBar } from './ProgressBar';
+import type { InputMethod } from '../hooks/useInputMethod';
 
 interface Props {
   character: string;
   zhuyin: string[];
   inputIndex: number;
   isCorrect: boolean | null;
+  inputMethod?: InputMethod;
 }
 
 export function PracticeCard({ character, zhuyin, inputIndex, isCorrect }: Props) {

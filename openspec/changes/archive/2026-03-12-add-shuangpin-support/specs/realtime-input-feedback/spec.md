@@ -1,6 +1,6 @@
 ## ADDED Requirements
 
-### Requirement: Display typed zhuyin symbols progressively
+### Requirement: Display typed bopomofo symbols progressively
 系統必須（SHALL）在使用者每次正確輸入注音符號後，在注音顯示區域即時更新已輸入的符號，讓使用者能夠視覺確認自己的輸入進度。
 
 #### Scenario: User types correct zhuyin symbol
