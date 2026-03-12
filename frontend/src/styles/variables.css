@@ -1,0 +1,18 @@
+:root {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #111111;
+  --bg-card: #161616;
+  --bg-elevated: #1a1a1a;
+  --accent-cyan: #00d9ff;
+  --accent-cyan-dim: rgba(0, 217, 255, 0.15);
+  --success: #00ff88;
+  --success-dim: rgba(0, 255, 136, 0.15);
+  --error: #ff4444;
+  --error-dim: rgba(255, 68, 68, 0.15);
+  --text-primary: #f0f0f0;
+  --text-secondary: #888888;
+  --text-muted: #444444;
+  --border: rgba(255, 255, 255, 0.08);
+  --font-chinese: 'Noto Serif TC', serif;
+  --font-ui: 'Noto Sans TC', sans-serif;
+}
