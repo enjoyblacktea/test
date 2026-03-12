@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.db import engine
-from app.routers import auth, words, attempts, health
+from app.routers import auth, words, attempts, health, goals
 
 
 @asynccontextmanager
@@ -32,3 +32,4 @@ app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(words.router, prefix="/api/words", tags=["words"])
 app.include_router(attempts.router, prefix="/api/attempts", tags=["attempts"])
 app.include_router(health.router, prefix="/api/health", tags=["health"])
+app.include_router(goals.router, prefix="/api/goals", tags=["goals"])
