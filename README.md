@@ -7,20 +7,17 @@
 - ✅ **完整後端認證** - JWT token 認證系統，支援註冊、登入、自動 token 刷新
 - ✅ **練習歷史記錄** - PostgreSQL 資料庫持久化儲存每次練習記錄
 - ✅ **看中文打注音** - 顯示中文字，使用者輸入對應的注音符號
-- ✅ **虛擬鍵盤** - 顯示完整的注音鍵盤配置供參考
+- ✅ **雙拼模式** - 支援小鶴雙拼輸入法，可切換注音/雙拼模式
+- ✅ **虛擬鍵盤** - 顯示完整的注音/雙拼鍵盤配置供參考
 - ✅ **即時視覺回饋** - 按下按鍵時虛擬鍵盤會高亮顯示
 - ✅ **非阻塞記錄** - 練習記錄異步儲存，不影響使用者體驗
-- ✅ **模組化設計** - 每個功能模組都可以獨立測試
-- ✅ **無框架** - 使用 Vanilla JS + HTML + CSS，輕量且易於理解
+- ✅ **模組化設計** - React + TypeScript 前端，FastAPI 後端
 
 ## 系統需求
 
-### 瀏覽器要求
-- Chrome 61+ 
-- Firefox 60+ 
-- Safari 11+
-
-（需要支援 ES6 Modules 的現代瀏覽器）
+### 前端要求
+- Node.js 18+
+- npm
 
 ### 後端要求
 - Python 3.10+
@@ -74,11 +71,24 @@ GRANT ALL PRIVILEGES ON DATABASE zhuyin_practice TO zhuyin_user;
 ### 2. 初始化資料庫結構
 
 ```bash
-# 執行資料庫遷移腳本
-psql -U zhuyin_user -d zhuyin_practice -f backend/migrations/init_db.sql
+cd backend
+uv sync
+uv run alembic upgrade head
 ```
 
-這會建立 3 個資料表（users, characters, typing_attempts）並載入 30 個練習字詞。
+這會建立所有資料表（users, characters, character_metadata, typing_attempts, user_goals）。
+
+接著載入練習字詞（注音）：
+
+```bash
+uv run python scripts/seed_characters.py
+```
+
+如要同時支援小鶴雙拼，再執行：
+
+```bash
+uv run python scripts/seed_shuangpin.py
+```
 
 ### 3. 設定環境變數
 
@@ -106,39 +116,28 @@ cd backend
 uv sync
 ```
 
-這會自動建立虛擬環境（`.venv`）並安裝所有依賴，包括 PostgreSQL 驅動程式。
+這會自動建立虛擬環境（`.venv`）並安裝所有依賴，包括 PostgreSQL 非同步驅動程式。
 
 ### 5. 啟動後端伺服器
 
 ```bash
 cd backend
-uv run python app.py
+uv run uvicorn app.main:app --reload
 ```
 
-伺服器會在 http://localhost:5000 啟動。
+伺服器會在 http://localhost:8000 啟動。
 
-如果資料庫連線成功，你會看到：
-```
-✓ Database connection established
-Flask app running on http://localhost:5000
-```
+API 文件可在 http://localhost:8000/docs 查看（Swagger UI）。
 
-### 6. 開啟前端網頁
-
-**方法 A: 使用 HTTP 伺服器（推薦）**
+### 6. 啟動前端開發伺服器
 
 ```bash
 cd frontend
-python3 -m http.server 8000
+npm install
+npm run dev
 ```
 
-然後在瀏覽器開啟 http://localhost:8000
-
-**方法 B: 直接開啟檔案**
-
-直接用瀏覽器開啟 `frontend/login.html` 檔案。
-
-> **注意**: 部分瀏覽器可能因為 CORS 政策限制，直接開啟檔案時無法正常呼叫 API。建議使用方法 A。
+前端會在 http://localhost:5173 啟動。
 
 ### 7. 註冊並登入
 
@@ -167,143 +166,115 @@ python3 -m http.server 8000
 
 ```
 zhuyin-practice/
-├── frontend/                    # 前端檔案
-│   ├── login.html              # 登入/註冊頁面
-│   ├── index.html              # 主練習頁面（需要認證）
-│   ├── styles/                 # CSS 樣式
-│   │   ├── main.css           # 全域樣式
-│   │   ├── keyboard.css       # 鍵盤樣式
-│   │   ├── practice.css       # 練習區樣式
-│   │   └── login.css          # 登入畫面樣式
-│   └── js/                     # JavaScript 檔案
-│       ├── main.js            # 入口點（檢查認證狀態）
-│       └── modules/           # ES6 模組
-│           ├── api.js         # API 客戶端（JWT token 管理）
-│           ├── auth-backend.js # 後端認證模組（註冊、登入、登出）
-│           ├── zhuyin-map.js  # 注音映射表
-│           ├── keyboard.js    # 虛擬鍵盤
-│           ├── practice.js    # 練習邏輯（含記錄功能）
-│           └── input-handler.js # 輸入處理
+├── frontend/                    # React + TypeScript 前端
+│   ├── src/
+│   │   ├── api/               # API 客戶端
+│   │   │   └── practice.ts   # 字詞 API 呼叫
+│   │   ├── components/        # React 元件
+│   │   │   ├── PracticeCard.tsx   # 練習字卡
+│   │   │   └── VirtualKeyboard.tsx # 虛擬鍵盤（注音/雙拼）
+│   │   ├── hooks/             # React hooks
+│   │   │   ├── useInputMethod.ts  # 輸入法模式狀態
+│   │   │   └── usePractice.ts     # 練習邏輯
+│   │   ├── pages/             # 頁面元件
+│   │   │   ├── LoginPage.tsx
+│   │   │   └── PracticePage.tsx
+│   │   └── styles/            # CSS 樣式
+│   │       └── main.css
+│   ├── package.json
+│   └── vite.config.ts
 │
-├── backend/                     # 後端檔案
-│   ├── app.py                  # Flask 應用程式入口點
-│   ├── config.py               # 配置管理（資料庫、JWT 設定）
-│   ├── routes/                 # API 路由層
-│   │   ├── words.py           # 字詞 API 端點
-│   │   ├── auth.py            # 認證 API 端點（註冊、登入、token 刷新）
-│   │   ├── attempts.py        # 練習記錄 API 端點
-│   │   └── health.py          # 健康檢查端點
-│   ├── services/               # 業務邏輯層
-│   │   ├── db_service.py      # 資料庫連線池管理
-│   │   ├── auth_service.py    # JWT 和密碼加密服務
-│   │   ├── character_service.py # 字詞查詢和注音轉換
-│   │   └── attempt_service.py  # 練習記錄管理
-│   ├── migrations/             # 資料庫遷移腳本
-│   │   └── init_db.sql        # 初始化資料庫結構和種子資料
+├── backend/                     # FastAPI 後端
+│   ├── app/                    # 應用程式核心
+│   │   ├── main.py            # FastAPI 入口點
+│   │   ├── config.py          # 配置管理（資料庫、JWT 設定）
+│   │   ├── db.py              # SQLAlchemy 非同步引擎
+│   │   ├── dependencies.py    # 依賴注入（認證等）
+│   │   ├── models/            # SQLAlchemy ORM 模型
+│   │   ├── routers/           # API 路由層
+│   │   │   ├── words.py       # 字詞 API 端點
+│   │   │   ├── auth.py        # 認證 API 端點
+│   │   │   ├── attempts.py    # 練習記錄 API 端點
+│   │   │   ├── goals.py       # 每日目標 API 端點
+│   │   │   └── health.py      # 健康檢查端點
+│   │   ├── schemas/           # Pydantic 資料模型
+│   │   └── services/          # 業務邏輯層
+│   │       ├── auth_service.py    # JWT 和密碼加密
+│   │       └── character_service.py # 字詞查詢和注音轉換
+│   ├── alembic/               # 資料庫遷移
+│   │   └── versions/          # 遷移版本檔案
+│   ├── scripts/               # 資料種子腳本
+│   │   ├── seed_characters.py # 注音字詞種子資料
+│   │   └── seed_shuangpin.py  # 小鶴雙拼種子資料
 │   ├── pyproject.toml         # 專案配置與依賴定義
-│   ├── uv.lock                # 依賴鎖定檔（確保可重現建置）
-│   └── data/                   # 資料檔案（已棄用，改用資料庫）
-│       └── words.json         # [已棄用] 練習字詞資料
+│   └── uv.lock                # 依賴鎖定檔
 │
-└── tests/                       # 測試檔案
-    ├── frontend/               # 前端測試
-    │   └── test.html          # 單元測試頁面
-    ├── backend/                # 後端測試
-    │   └── test_api.py        # API 測試
-    └── INTEGRATION_TEST_CHECKLIST.md  # 整合測試清單
+└── openspec/                    # 功能規格文件
+    ├── specs/                  # 功能規格
+    └── changes/archive/        # 已完成的變更記錄
 ```
 
 ## 後端架構
 
-後端採用簡潔的三層模組化架構，支援 PostgreSQL 資料庫和 JWT 認證：
+後端採用 FastAPI + SQLAlchemy 非同步架構，支援 PostgreSQL 資料庫和 JWT 認證：
 
 ```
 ┌─────────────────────────────────┐
-│      app.py (入口點)            │
-│  建立 Flask app、CORS、連線池  │
+│      main.py (入口點)           │
+│  建立 FastAPI app、CORS、路由   │
 └────────────┬────────────────────┘
              │
     ┌────────┴────────────────────┐
     │                             │
 ┌───▼──────┐    ┌────▼──────────┐
-│  routes/ │    │   services/    │
+│ routers/ │    │   services/    │
 │ (HTTP層) │───>│ (業務邏輯層)   │
 │          │    │                │
-│ auth.py  │    │ db_service.py  │
-│ words.py │    │ auth_service.py│
-│attempts.py    │character_srv.js│
-│ health.py│    │ attempt_srv.js │
-└──────────┘    └─────┬──────────┘
-                      │
-           ┌──────────┴──────────┐
-           │                     │
-     ┌─────▼──────┐    ┌────────▼──────┐
-     │ config.py  │    │  PostgreSQL   │
-     │ (配置層)   │    │  (資料持久層) │
-     └────────────┘    └───────────────┘
+│ auth.py  │    │ auth_service   │
+│ words.py │    │ character_srv  │
+│attempts  │    └────────────────┘
+│ goals.py │
+│ health.py│
+└──────────┘
+      │
+┌─────▼──────┐    ┌────────────────┐
+│ schemas/   │    │    models/     │
+│ (Pydantic) │    │ (SQLAlchemy)   │
+└────────────┘    └───────┬────────┘
+                          │
+                  ┌───────▼────────┐
+                  │  PostgreSQL    │
+                  │  (asyncpg)     │
+                  └────────────────┘
 ```
 
 ### 架構原則
 
-1. **單向依賴流**：routes → services → (config + database)（無循環依賴）
-2. **關注點分離**：HTTP 處理、業務邏輯、資料庫存取、配置管理各司其職
-3. **連線池管理**：使用 psycopg2 連線池提升效能
-4. **JWT 認證**：所有需要認證的端點使用 @require_auth 裝飾器
-5. **易於測試**：每一層都可以獨立測試和 mock
+1. **全非同步**：使用 `async/await` + asyncpg，提升並發效能
+2. **單向依賴流**：routers → services → models → database
+3. **Pydantic 驗證**：所有 request/response 自動驗證和序列化
+4. **依賴注入**：FastAPI Depends 管理認證、資料庫 session
+5. **Alembic 遷移**：資料庫結構版本控管
 
 ### 模組職責
 
-#### `app.py` - 應用程式入口點
-- 建立 Flask 應用程式
+#### `main.py` - 應用程式入口點
+- 建立 FastAPI 應用程式
 - 配置 CORS
-- 初始化資料庫連線池
-- 註冊所有 Blueprints（auth, words, attempts, health）
+- 註冊所有 routers（auth, words, attempts, goals, health）
 
 #### `config.py` - 配置管理
-- 集中管理所有配置值
-  - 資料庫連線（DATABASE_URL, 連線池設定）
-  - JWT 設定（密鑰、過期時間、演算法）
-  - Bcrypt 工作因子
-- 提供 `Config` 類別供其他模組引用
-- 支援環境變數覆寫（透過 .env 檔案）
+- 使用 pydantic-settings 從環境變數讀取配置
+- 資料庫連線、JWT 設定、Bcrypt 工作因子
 
-#### `routes/` - 路由層
+#### `routers/` - 路由層
 - 處理 HTTP 請求和回應
-- 將請求委派給 services 處理
-- 將回應格式化為 JSON
+- 使用 Pydantic schemas 驗證輸入/輸出
 - **不包含業務邏輯**
-- `auth.py`: 提供 @require_auth 裝飾器保護需要認證的端點
 
 #### `services/` - 業務邏輯層
-- 包含所有業務邏輯（資料查詢、處理、驗證）
-- 獨立於 HTTP 和 Flask
-- 易於單元測試
-- **db_service**: 管理 PostgreSQL 連線池，提供 execute_query 統一介面
 - **auth_service**: JWT token 生成/驗證、bcrypt 密碼加密
-- **character_service**: 字詞查詢、input_code 轉 zhuyin 陣列
-- **attempt_service**: 練習記錄儲存和查詢（含分頁、篩選）
-
-### 新增功能範例
-
-假設要添加一個新的 API 端點 `GET /api/words/list`：
-
-1. **在 services 添加業務邏輯**：
-   ```python
-   # services/word_service.py
-   def get_all_words():
-       return _words_data
-   ```
-
-2. **在 routes 添加端點**：
-   ```python
-   # routes/words.py
-   @words_bp.route('/list', methods=['GET'])
-   def list_words():
-       words = word_service.get_all_words()
-       return jsonify(words)
-   ```
-
-3. **完成！** 不需要修改 `app.py`，Blueprint 會自動處理路由
+- **character_service**: 字詞查詢、注音/雙拼轉換邏輯
 
 ## API 文件
 
@@ -516,7 +487,7 @@ Authorization: Bearer <access_token>
 
 ```bash
 cd backend
-uv run pytest ../tests/backend/ -v
+uv run pytest -v
 ```
 
 測試包含:
@@ -587,17 +558,18 @@ uv run pytest ../tests/backend/ -v
 ## 技術決策
 
 ### 前端
-- **ES6 Modules**: 模組化設計，無需建置工具
+- **React + TypeScript**: 型別安全的元件化開發
+- **Vite**: 快速開發伺服器和建置工具
 - **CSS Grid**: 虛擬鍵盤排版
 - **前端驗證**: 即時回饋，無需伺服器往返
 
 ### 後端
-- **Flask**: 輕量級框架，簡單易用
-- **Flask Blueprints**: 模組化路由組織
-- **flask-cors**: 處理跨域請求
-- **靜態 JSON**: 簡單可靠的資料儲存
+- **FastAPI**: 高效能非同步框架，自動產生 OpenAPI 文件
+- **SQLAlchemy (async)**: ORM + asyncpg 非同步 PostgreSQL 驅動
+- **Alembic**: 資料庫結構版本控管與遷移
+- **Pydantic v2**: request/response 自動驗證和序列化
 - **uv + pyproject.toml**: 現代 Python 套件管理，提供快速安裝與可重現建置（透過 `uv.lock`）
-- **模組化架構**: routes → services → config 三層分離
+- **模組化架構**: routers → services → models 三層分離
 
 ### 環境變數配置
 
